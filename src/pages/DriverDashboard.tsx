@@ -1,0 +1,549 @@
+
+import React, { useState } from 'react';
+import NavBar from '@/components/NavBar';
+import MapView from '@/components/MapView';
+import DashboardCard from '@/components/DashboardCard';
+import { cn } from '@/lib/utils';
+import { Bus, Clock, MapPin, User, MessageSquare, Search, Camera, Phone } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
+
+const DriverDashboard = () => {
+  const [status, setStatus] = useState<'offline' | 'online' | 'on-route'>('online');
+  const [currentTab, setCurrentTab] = useState<'passengers' | 'route' | 'communication'>('passengers');
+
+  const students = [
+    { id: 1, name: 'Emma Wilson', stop: 'Student Center', status: 'boarded', imageUrl: '' },
+    { id: 2, name: 'Michael Chen', stop: 'Library', status: 'waiting', imageUrl: '' },
+    { id: 3, name: 'Sarah Johnson', stop: 'Engineering Building', status: 'waiting', imageUrl: '' },
+    { id: 4, name: 'Diego Rodrigez', stop: 'Gym', status: 'canceled', imageUrl: '' },
+    { id: 5, name: 'Aisha Patel', stop: 'Science Center', status: 'waiting', imageUrl: '' },
+  ];
+  
+  const stops = [
+    { id: 1, name: 'Student Center', time: '8:30 AM', status: 'completed', studentsCount: 5 },
+    { id: 2, name: 'Library', time: '8:45 AM', status: 'current', studentsCount: 3 },
+    { id: 3, name: 'Engineering Building', time: '9:00 AM', status: 'upcoming', studentsCount: 8 },
+    { id: 4, name: 'Gym', time: '9:10 AM', status: 'upcoming', studentsCount: 2 },
+    { id: 5, name: 'Science Center', time: '9:25 AM', status: 'upcoming', studentsCount: 6 },
+  ];
+  
+  const emergencyToggle = () => {
+    toast.error("Emergency alert sent to campus security. Help is on the way.");
+  };
+  
+  const delayRoute = () => {
+    toast.info("All passengers have been notified of the 10-minute delay.");
+  };
+  
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <NavBar />
+      
+      <main className="pt-20 pb-12 px-4 md:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Dashboard Header */}
+          <div className="mb-8 mt-4">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Driver Dashboard</h1>
+                <p className="text-gray-600 mt-1">Welcome back, David!</p>
+              </div>
+              
+              <div className="mt-4 md:mt-0 flex items-center gap-3">
+                <span className={cn(
+                  "px-3 py-1 rounded-full text-sm font-medium flex items-center gap-1",
+                  status === 'offline' && 'bg-gray-100 text-gray-700',
+                  status === 'online' && 'bg-blue-100 text-blue-700',
+                  status === 'on-route' && 'bg-green-100 text-green-700'
+                )}>
+                  <span className={cn(
+                    "h-2 w-2 rounded-full",
+                    status === 'offline' && 'bg-gray-500',
+                    status === 'online' && 'bg-blue-500',
+                    status === 'on-route' && 'bg-green-500'
+                  )}></span>
+                  {status === 'offline' ? 'Offline' : status === 'online' ? 'Online' : 'On Route'}
+                </span>
+                
+                <Button 
+                  variant={status === 'offline' ? 'default' : 'outline'} 
+                  className={status === 'offline' ? 'bg-brand-500 hover:bg-brand-600' : ''}
+                  onClick={() => {
+                    const newStatus = status === 'offline' ? 'online' : 'offline';
+                    setStatus(newStatus);
+                    toast.success(`You are now ${newStatus}`);
+                  }}
+                >
+                  {status === 'offline' ? 'Go Online' : 'Go Offline'}
+                </Button>
+              </div>
+            </div>
+          </div>
+          
+          {/* Dashboard Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <DashboardCard
+              title="Current Route"
+              value="North Campus Express"
+              icon={<Bus size={18} />}
+              className="col-span-1"
+            />
+            <DashboardCard
+              title="Passengers"
+              value="23/30"
+              icon={<User size={18} />}
+              className="col-span-1"
+            />
+            <DashboardCard
+              title="Next Stop"
+              value="Library (3 min)"
+              icon={<MapPin size={18} />}
+              className="col-span-1"
+            />
+            <DashboardCard
+              title="Route Progress"
+              value="2/5 Stops"
+              trend={40}
+              trendLabel="complete"
+              icon={<Clock size={18} />}
+              className="col-span-1"
+            />
+          </div>
+          
+          {/* Main Content */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Map Section */}
+            <div className="lg:col-span-2">
+              <MapView userType="driver" />
+              
+              {/* Navigation Controls */}
+              <div className="bg-white rounded-xl p-6 mt-6 border border-gray-100 shadow-sm">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                    <Bus size={18} className="text-brand-500" />
+                    Route Navigation
+                  </h3>
+                  
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={delayRoute}
+                    >
+                      Delay 10 min
+                    </Button>
+                    <Button 
+                      variant="default" 
+                      size="sm"
+                      className="bg-brand-500 hover:bg-brand-600"
+                      onClick={() => {
+                        setStatus('on-route');
+                        toast.success("Route started successfully");
+                      }}
+                      disabled={status === 'on-route'}
+                    >
+                      {status === 'on-route' ? 'In Progress' : 'Start Route'}
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="relative">
+                  {/* Progress Indicator */}
+                  <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 z-0"></div>
+                  
+                  {/* Stops */}
+                  <div className="space-y-6 relative z-10">
+                    {stops.map((stop, index) => (
+                      <div key={stop.id} className="flex items-start ml-4 pl-6 relative">
+                        {/* Status Indicator */}
+                        <div className={cn(
+                          "absolute left-0 top-1 h-4 w-4 rounded-full border-2 border-white",
+                          stop.status === 'completed' && 'bg-green-500',
+                          stop.status === 'current' && 'bg-brand-500 animate-pulse',
+                          stop.status === 'upcoming' && 'bg-gray-300'
+                        )}></div>
+                        
+                        {/* Stop Info */}
+                        <div className="flex-1">
+                          <div className="flex justify-between items-center">
+                            <h4 className="font-medium text-gray-900 flex items-center gap-1">
+                              {stop.name}
+                              {stop.status === 'current' && (
+                                <span className="text-xs font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
+                                  Current
+                                </span>
+                              )}
+                            </h4>
+                            <span className="text-sm text-gray-600">{stop.time}</span>
+                          </div>
+                          <div className="text-sm text-gray-600 mt-1">
+                            {stop.studentsCount} passengers {stop.status === 'completed' ? 'boarded' : 'waiting'}
+                          </div>
+                          
+                          {stop.status === 'current' && (
+                            <div className="mt-3 flex gap-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="text-xs"
+                                onClick={() => toast.success(`Arrived at ${stop.name}`)}
+                              >
+                                Mark as Arrived
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-xs text-brand-500"
+                                onClick={() => toast.success(`All passengers at ${stop.name} notified`)}
+                              >
+                                Notify Passengers
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* Side Panel */}
+            <div className="col-span-1">
+              <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                <div className="flex border-b border-gray-100">
+                  <button
+                    className={cn(
+                      "flex-1 py-4 text-sm font-medium transition-colors",
+                      currentTab === 'passengers' 
+                        ? "text-brand-600 border-b-2 border-brand-500" 
+                        : "text-gray-600 hover:text-brand-600"
+                    )}
+                    onClick={() => setCurrentTab('passengers')}
+                  >
+                    Passengers
+                  </button>
+                  <button
+                    className={cn(
+                      "flex-1 py-4 text-sm font-medium transition-colors",
+                      currentTab === 'route' 
+                        ? "text-brand-600 border-b-2 border-brand-500" 
+                        : "text-gray-600 hover:text-brand-600"
+                    )}
+                    onClick={() => setCurrentTab('route')}
+                  >
+                    Details
+                  </button>
+                  <button
+                    className={cn(
+                      "flex-1 py-4 text-sm font-medium transition-colors",
+                      currentTab === 'communication' 
+                        ? "text-brand-600 border-b-2 border-brand-500" 
+                        : "text-gray-600 hover:text-brand-600"
+                    )}
+                    onClick={() => setCurrentTab('communication')}
+                  >
+                    Messages
+                  </button>
+                </div>
+                
+                {currentTab === 'passengers' && (
+                  <div className="p-4">
+                    <div className="relative mb-4">
+                      <input 
+                        type="text" 
+                        placeholder="Search passengers..." 
+                        className="w-full px-4 py-2 pl-10 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent text-sm transition-all"
+                      />
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                    </div>
+                    
+                    <div className="space-y-2 max-h-[350px] overflow-y-auto">
+                      {students.map((student) => (
+                        <div 
+                          key={student.id} 
+                          className={cn(
+                            "p-3 rounded-lg border transition-colors",
+                            student.status === 'boarded' && "border-green-100 bg-green-50",
+                            student.status === 'waiting' && "border-gray-100 bg-white",
+                            student.status === 'canceled' && "border-gray-100 bg-gray-50"
+                          )}
+                        >
+                          <div className="flex items-center">
+                            <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 font-medium">
+                              {student.name.charAt(0)}
+                            </div>
+                            <div className="ml-3 flex-1">
+                              <div className="flex justify-between">
+                                <h4 className="font-medium text-gray-900">{student.name}</h4>
+                                <span 
+                                  className={cn(
+                                    "text-xs px-2 py-0.5 rounded-full",
+                                    student.status === 'boarded' && "bg-green-100 text-green-700",
+                                    student.status === 'waiting' && "bg-blue-100 text-blue-700",
+                                    student.status === 'canceled' && "bg-gray-100 text-gray-700 line-through"
+                                  )}
+                                >
+                                  {student.status === 'boarded' ? 'Boarded' : 
+                                   student.status === 'waiting' ? 'Waiting' : 'Canceled'}
+                                </span>
+                              </div>
+                              <div className="text-xs text-gray-600">
+                                Stop: {student.stop}
+                              </div>
+                            </div>
+                          </div>
+                          
+                          {student.status === 'waiting' && (
+                            <div className="flex gap-2 mt-2 pl-12">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="text-xs flex-1"
+                                onClick={() => {
+                                  toast.success(`${student.name} marked as boarded`);
+                                }}
+                              >
+                                Mark as Boarded
+                              </Button>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="text-xs text-brand-500"
+                                onClick={() => {
+                                  toast.success(`Message sent to ${student.name}`);
+                                }}
+                              >
+                                <MessageSquare size={12} className="mr-1" />
+                                Message
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {currentTab === 'route' && (
+                  <div className="p-4">
+                    <div className="mb-4 p-3 rounded-lg border border-gray-100 bg-gray-50">
+                      <h4 className="font-medium text-gray-900 mb-2">Route Information</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Route ID:</span>
+                          <span className="font-medium text-gray-900">NCE-4207</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Bus Number:</span>
+                          <span className="font-medium text-gray-900">42</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Scheduled Start:</span>
+                          <span className="font-medium text-gray-900">8:30 AM</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Estimated End:</span>
+                          <span className="font-medium text-gray-900">9:45 AM</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Total Distance:</span>
+                          <span className="font-medium text-gray-900">4.2 miles</span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="mb-4 p-3 rounded-lg border border-gray-100">
+                      <h4 className="font-medium text-gray-900 mb-2">Vehicle Status</h4>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Fuel Level:</span>
+                          <span className="font-medium text-gray-900">78%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Battery:</span>
+                          <span className="font-medium text-green-600">Good</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-600">Last Maintenance:</span>
+                          <span className="font-medium text-gray-900">3 days ago</span>
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="w-full mt-3"
+                        onClick={() => {
+                          toast.info("Maintenance report submitted successfully");
+                        }}
+                      >
+                        <Camera size={14} className="mr-1" />
+                        Report Issue
+                      </Button>
+                    </div>
+                    
+                    <div className="p-3 rounded-lg border border-gray-100">
+                      <h4 className="font-medium text-gray-900 mb-2">Weather Conditions</h4>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-brand-500">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                            <line x1="1" y1="12" x2="3" y2="12"></line>
+                            <line x1="21" y1="12" x2="23" y2="12"></line>
+                            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                          </svg>
+                          <div className="ml-2">
+                            <div className="font-medium text-gray-900">Sunny</div>
+                            <div className="text-sm text-gray-600">72°F</div>
+                          </div>
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          <div>Wind: 5 mph</div>
+                          <div>Visibility: Good</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {currentTab === 'communication' && (
+                  <div className="p-4">
+                    <div className="flex justify-between mb-4">
+                      <h4 className="font-medium text-gray-900">Recent Messages</h4>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="text-xs text-brand-500"
+                        onClick={() => {
+                          toast.success("New announcement sent to all passengers");
+                        }}
+                      >
+                        Send Announcement
+                      </Button>
+                    </div>
+                    
+                    <div className="space-y-3 max-h-[350px] overflow-y-auto">
+                      <div className="p-3 rounded-lg border border-gray-100">
+                        <div className="flex justify-between mb-1">
+                          <span className="font-medium text-gray-900">Emma Wilson</span>
+                          <span className="text-xs text-gray-500">8:32 AM</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          Will the bus stop at the engineering building today?
+                        </p>
+                        <div className="flex justify-end">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-xs text-brand-500 h-7"
+                            onClick={() => {
+                              toast.success("Reply sent to Emma Wilson");
+                            }}
+                          >
+                            Reply
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="p-3 rounded-lg border border-blue-100 bg-blue-50">
+                        <div className="flex justify-between mb-1">
+                          <span className="font-medium text-gray-900">System Notification</span>
+                          <span className="text-xs text-gray-500">8:15 AM</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          Route NCE-4207 has been activated. 23 passengers are currently scheduled.
+                        </p>
+                      </div>
+                      
+                      <div className="p-3 rounded-lg border border-gray-100">
+                        <div className="flex justify-between mb-1">
+                          <span className="font-medium text-gray-900">Michael Chen</span>
+                          <span className="text-xs text-gray-500">7:58 AM</span>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-2">
+                          I might be 2 minutes late to the stop. Can you wait for me?
+                        </p>
+                        <div className="flex justify-end gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="text-xs h-7"
+                            onClick={() => {
+                              toast.success("Confirmed waiting for Michael Chen");
+                            }}
+                          >
+                            Confirm
+                          </Button>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-xs text-brand-500 h-7"
+                            onClick={() => {
+                              toast.success("Reply sent to Michael Chen");
+                            }}
+                          >
+                            Reply
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+              
+              {/* Emergency Services */}
+              <div className="mt-6 grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl border border-red-100 bg-red-50 text-center">
+                  <div className="flex items-center justify-center mb-2">
+                    <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      </svg>
+                    </div>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Emergency Alert</h3>
+                  <Button 
+                    variant="default" 
+                    className="w-full bg-red-600 hover:bg-red-700 text-white"
+                    onClick={emergencyToggle}
+                  >
+                    Send SOS
+                  </Button>
+                </div>
+                
+                <div className="p-4 rounded-xl border border-amber-100 bg-amber-50 text-center">
+                  <div className="flex items-center justify-center mb-2">
+                    <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                      <Phone size={20} />
+                    </div>
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Support Line</h3>
+                  <Button 
+                    variant="default" 
+                    className="w-full bg-amber-500 hover:bg-amber-600 text-white"
+                    onClick={() => {
+                      toast.success("Connecting to dispatch support...");
+                    }}
+                  >
+                    Call Dispatch
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default DriverDashboard;
