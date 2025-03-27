@@ -27,17 +27,17 @@ const Hero: React.FC<HeroProps> = ({ className }) => {
           </p>
           <div className="space-x-4">
             <Link to="/student">
-              <Button variant="default" size="lg">
+              <Button variant="outline" size="lg">
                 Student Dashboard
               </Button>
             </Link>
             <Link to="/driver">
-              <Button variant="secondary" size="lg">
+              <Button variant="default" size="lg" className="bg-brand-500 hover:bg-brand-600">
                 Driver Dashboard
               </Button>
             </Link>
             <Link to="/admin">
-              <Button variant="default" size="lg">
+              <Button variant="outline" size="lg">
                 Admin Dashboard
               </Button>
             </Link>

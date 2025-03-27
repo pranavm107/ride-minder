@@ -4,7 +4,7 @@ import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
 import DashboardCard from '@/components/DashboardCard';
 import { cn } from '@/lib/utils';
-import { Bus, Clock, MapPin, User, MessageSquare, Search, Camera, Phone } from 'lucide-react';
+import { Bus, Clock, MapPin, User, MessageSquare, Search, Camera, Phone, Bell, Settings, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -26,6 +26,11 @@ const DriverDashboard = () => {
     { id: 3, name: 'Engineering Building', time: '9:00 AM', status: 'upcoming', studentsCount: 8 },
     { id: 4, name: 'Gym', time: '9:10 AM', status: 'upcoming', studentsCount: 2 },
     { id: 5, name: 'Science Center', time: '9:25 AM', status: 'upcoming', studentsCount: 6 },
+  ];
+  
+  const maintenanceIssues = [
+    { id: 1, type: 'Low Fuel', status: 'pending', reportedAt: 'Yesterday, 5:30 PM' },
+    { id: 2, type: 'Brake Check', status: 'scheduled', date: 'Tomorrow, 9:00 AM' },
   ];
   
   const emergencyToggle = () => {
@@ -82,7 +87,7 @@ const DriverDashboard = () => {
           </div>
           
           {/* Dashboard Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
             <DashboardCard
               title="Current Route"
               value="North Campus Express"
@@ -113,12 +118,74 @@ const DriverDashboard = () => {
           
           {/* Main Content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Map Section */}
+            {/* Navigation Map */}
             <div className="lg:col-span-2">
-              <MapView userType="driver" />
+              <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm mb-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-gray-900">Real-Time Navigation</h3>
+                  
+                  <div className="flex items-center gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast.info("Voice navigation activated")}
+                      className="flex items-center gap-1"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                        <line x1="12" y1="19" x2="12" y2="23"></line>
+                        <line x1="8" y1="23" x2="16" y2="23"></line>
+                      </svg>
+                      Voice
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => toast.info("Showing traffic information")}
+                    >
+                      Traffic
+                    </Button>
+                  </div>
+                </div>
+                
+                <MapView userType="driver" />
+                
+                <div className="mt-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="h-8 w-8 rounded-full bg-brand-100 flex items-center justify-center">
+                      <MapPin size={16} className="text-brand-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Next: Library</p>
+                      <p className="text-xs text-gray-500">3 min (0.8 miles)</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3">
+                    <Button 
+                      variant="outline"
+                      size="sm"
+                      onClick={delayRoute}
+                      className="text-xs flex items-center gap-1"
+                    >
+                      <AlertTriangle size={14} />
+                      Report Delay
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      className="bg-brand-500 hover:bg-brand-600 text-xs"
+                      onClick={() => toast.success("Turn-by-turn directions started")}
+                    >
+                      Start Navigation
+                    </Button>
+                  </div>
+                </div>
+              </div>
               
               {/* Navigation Controls */}
-              <div className="bg-white rounded-xl p-6 mt-6 border border-gray-100 shadow-sm">
+              <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                     <Bus size={18} className="text-brand-500" />
@@ -233,7 +300,7 @@ const DriverDashboard = () => {
                     )}
                     onClick={() => setCurrentTab('route')}
                   >
-                    Details
+                    Vehicle
                   </button>
                   <button
                     className={cn(
@@ -329,34 +396,12 @@ const DriverDashboard = () => {
                 {currentTab === 'route' && (
                   <div className="p-4">
                     <div className="mb-4 p-3 rounded-lg border border-gray-100 bg-gray-50">
-                      <h4 className="font-medium text-gray-900 mb-2">Route Information</h4>
+                      <h4 className="font-medium text-gray-900 mb-2">Vehicle Status</h4>
                       <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Route ID:</span>
-                          <span className="font-medium text-gray-900">NCE-4207</span>
-                        </div>
                         <div className="flex justify-between">
                           <span className="text-gray-600">Bus Number:</span>
                           <span className="font-medium text-gray-900">42</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Scheduled Start:</span>
-                          <span className="font-medium text-gray-900">8:30 AM</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Estimated End:</span>
-                          <span className="font-medium text-gray-900">9:45 AM</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Total Distance:</span>
-                          <span className="font-medium text-gray-900">4.2 miles</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="mb-4 p-3 rounded-lg border border-gray-100">
-                      <h4 className="font-medium text-gray-900 mb-2">Vehicle Status</h4>
-                      <div className="space-y-2 text-sm">
                         <div className="flex justify-between">
                           <span className="text-gray-600">Fuel Level:</span>
                           <span className="font-medium text-gray-900">78%</span>
@@ -370,17 +415,41 @@ const DriverDashboard = () => {
                           <span className="font-medium text-gray-900">3 days ago</span>
                         </div>
                       </div>
+                    </div>
+                    
+                    {/* Maintenance Log */}
+                    <div className="mb-4 p-3 rounded-lg border border-gray-100">
+                      <h4 className="font-medium text-gray-900 mb-2">Maintenance Log</h4>
+                      
+                      <div className="space-y-2 mb-3">
+                        {maintenanceIssues.map(issue => (
+                          <div key={issue.id} className="p-2 rounded border border-gray-100 bg-gray-50">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm font-medium">{issue.type}</span>
+                              <span className={cn(
+                                "text-xs px-2 py-0.5 rounded-full",
+                                issue.status === 'pending' ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"
+                              )}>
+                                {issue.status === 'pending' ? 'Pending' : 'Scheduled'}
+                              </span>
+                            </div>
+                            <div className="text-xs text-gray-600 mt-1">
+                              {issue.status === 'pending' ? issue.reportedAt : issue.date}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                       
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="w-full mt-3"
+                        className="w-full"
                         onClick={() => {
                           toast.info("Maintenance report submitted successfully");
                         }}
                       >
                         <Camera size={14} className="mr-1" />
-                        Report Issue
+                        Report New Issue
                       </Button>
                     </div>
                     
@@ -498,44 +567,66 @@ const DriverDashboard = () => {
                 )}
               </div>
               
-              {/* Emergency Services */}
-              <div className="mt-6 grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl border border-red-100 bg-red-50 text-center">
-                  <div className="flex items-center justify-center mb-2">
-                    <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                      </svg>
-                    </div>
+              {/* Performance & Emergency */}
+              <div className="mt-6 space-y-4">
+                {/* Performance */}
+                <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+                  <h4 className="font-medium text-gray-900 mb-2">Driver Performance</h4>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm text-gray-600">Punctuality</span>
+                    <span className="text-sm font-medium text-gray-900">4.9/5.0</span>
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Emergency Alert</h3>
-                  <Button 
-                    variant="default" 
-                    className="w-full bg-red-600 hover:bg-red-700 text-white"
-                    onClick={emergencyToggle}
-                  >
-                    Send SOS
-                  </Button>
+                  <div className="w-full bg-gray-100 rounded-full h-2 mb-3">
+                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '98%' }}></div>
+                  </div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-sm text-gray-600">Student Rating</span>
+                    <span className="text-sm font-medium text-gray-900">4.8/5.0</span>
+                  </div>
+                  <div className="w-full bg-gray-100 rounded-full h-2">
+                    <div className="bg-green-500 h-2 rounded-full" style={{ width: '96%' }}></div>
+                  </div>
                 </div>
                 
-                <div className="p-4 rounded-xl border border-amber-100 bg-amber-50 text-center">
-                  <div className="flex items-center justify-center mb-2">
-                    <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
-                      <Phone size={20} />
+                {/* Emergency Services */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl border border-red-100 bg-red-50 text-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
+                          <line x1="12" y1="8" x2="12" y2="12"></line>
+                          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                      </div>
                     </div>
+                    <h3 className="font-semibold text-gray-900 mb-2">Emergency Alert</h3>
+                    <Button 
+                      variant="default" 
+                      className="w-full bg-red-600 hover:bg-red-700 text-white"
+                      onClick={emergencyToggle}
+                    >
+                      Send SOS
+                    </Button>
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Support Line</h3>
-                  <Button 
-                    variant="default" 
-                    className="w-full bg-amber-500 hover:bg-amber-600 text-white"
-                    onClick={() => {
-                      toast.success("Connecting to dispatch support...");
-                    }}
-                  >
-                    Call Dispatch
-                  </Button>
+                  
+                  <div className="p-4 rounded-xl border border-amber-100 bg-amber-50 text-center">
+                    <div className="flex items-center justify-center mb-2">
+                      <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600">
+                        <Phone size={20} />
+                      </div>
+                    </div>
+                    <h3 className="font-semibold text-gray-900 mb-2">Support Line</h3>
+                    <Button 
+                      variant="default" 
+                      className="w-full bg-amber-500 hover:bg-amber-600 text-white"
+                      onClick={() => {
+                        toast.success("Connecting to dispatch support...");
+                      }}
+                    >
+                      Call Dispatch
+                    </Button>
+                  </div>
                 </div>
               </div>
             </div>
