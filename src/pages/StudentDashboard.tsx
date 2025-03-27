@@ -4,12 +4,16 @@ import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
 import DashboardCard from '@/components/DashboardCard';
 import { cn } from '@/lib/utils';
-import { Bus, Clock, MapPin, User, MessageSquare, Search } from 'lucide-react';
+import { Bus, Clock, MapPin, User, MessageSquare, Search, Calendar, Bell, AlertTriangle, FileText, CreditCard, SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'history'>('upcoming');
+  const [emergencyPressed, setEmergencyPressed] = useState(false);
+  const [emergencyTimer, setEmergencyTimer] = useState<NodeJS.Timeout | null>(null);
+  const [skipRide, setSkipRide] = useState(false);
 
   const upcomingRides = [
     { 
@@ -20,7 +24,8 @@ const StudentDashboard = () => {
       to: 'Engineering Building', 
       departure: '8:30 AM', 
       eta: '5 min',
-      status: 'on-time'
+      status: 'on-time',
+      driverName: 'John Smith'
     },
     { 
       id: 2, 
@@ -30,7 +35,8 @@ const StudentDashboard = () => {
       to: 'Library', 
       departure: '2:15 PM', 
       eta: '3 hrs',
-      status: 'scheduled'
+      status: 'scheduled',
+      driverName: 'Maria Rodriguez'
     },
   ];
   
@@ -42,7 +48,8 @@ const StudentDashboard = () => {
       from: 'Gym', 
       to: 'Student Housing', 
       departure: 'Yesterday, 5:30 PM', 
-      status: 'completed'
+      status: 'completed',
+      driverName: 'Mike Johnson'
     },
     { 
       id: 102, 
@@ -51,9 +58,81 @@ const StudentDashboard = () => {
       from: 'Student Center', 
       to: 'Arts Building', 
       departure: 'Oct 12, 10:15 AM', 
-      status: 'completed'
+      status: 'completed',
+      driverName: 'Sarah Williams'
     },
   ];
+
+  const notifications = [
+    {
+      id: 1,
+      message: 'Bus #42 is 2 minutes behind schedule due to traffic.',
+      time: '2 mins ago',
+      type: 'delay'
+    },
+    {
+      id: 2,
+      message: 'Route changed: Afternoon pickup moved to Gate B.',
+      time: '1 hour ago',
+      type: 'route'
+    },
+    {
+      id: 3,
+      message: 'Bus fee due in 3 days! Complete payment to avoid service interruption.',
+      time: '6 hours ago',
+      type: 'payment'
+    }
+  ];
+
+  const handleEmergencyTouchStart = () => {
+    const timer = setTimeout(() => {
+      setEmergencyPressed(true);
+      triggerEmergency();
+    }, 3000);
+    setEmergencyTimer(timer);
+  };
+
+  const handleEmergencyTouchEnd = () => {
+    if (emergencyTimer) {
+      clearTimeout(emergencyTimer);
+      setEmergencyTimer(null);
+    }
+  };
+
+  const triggerEmergency = () => {
+    toast.error("Emergency alert sent to campus security and administrators", {
+      description: "Help is on the way. Your location has been shared.",
+      duration: 10000,
+    });
+    
+    // This would trigger real emergency protocols in a production app
+    setTimeout(() => setEmergencyPressed(false), 5000);
+  };
+
+  const handleSkipRide = () => {
+    setSkipRide(!skipRide);
+    if (!skipRide) {
+      toast.success("Your PM ride has been skipped", {
+        description: "Driver has been notified that you won't be riding this evening.",
+      });
+    } else {
+      toast.success("Your PM ride has been restored", {
+        description: "You're back on the pick-up list for this evening.",
+      });
+    }
+  };
+
+  const handleSubmitComplaint = () => {
+    toast.success("Complaint submitted successfully", {
+      description: "A staff member will review your submission within 24 hours.",
+    });
+  };
+
+  const handleCustomizeRide = () => {
+    toast.success("Ride customization request sent", {
+      description: "Your request will be reviewed by an administrator shortly.",
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -167,6 +246,7 @@ const StudentDashboard = () => {
                         className="text-xs"
                         onClick={() => toast.success("Notification set for 2 minutes before arrival")}
                       >
+                        <Bell size={14} className="mr-1" />
                         Notify Me
                       </Button>
                       <Button 
@@ -175,10 +255,65 @@ const StudentDashboard = () => {
                         className="text-xs text-brand-500"
                         onClick={() => toast.success("Message sent to driver")}
                       >
-                        <MessageSquare size={12} className="mr-1" />
+                        <MessageSquare size={14} className="mr-1" />
                         Message Driver
                       </Button>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Ride Customization Section */}
+              <div className="bg-white rounded-xl p-6 mt-6 border border-gray-100 shadow-sm">
+                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <SkipForward size={18} className="text-brand-500" />
+                  Ride Customization
+                </h3>
+
+                <div className="space-y-6">
+                  {/* Skip PM Ride Toggle */}
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h4 className="font-medium text-gray-900">Skip Evening Ride Today</h4>
+                      <p className="text-sm text-gray-600">Driver will be notified you won't be riding</p>
+                    </div>
+                    <div className="relative">
+                      <button 
+                        onClick={handleSkipRide}
+                        className={cn(
+                          "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                          skipRide ? "bg-brand-500" : "bg-gray-200"
+                        )}
+                      >
+                        <span 
+                          className={cn(
+                            "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform",
+                            skipRide ? "translate-x-5" : "translate-x-0"
+                          )}
+                        />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Route Change Request */}
+                  <div>
+                    <h4 className="font-medium text-gray-900 mb-2">Request Drop Location Change</h4>
+                    <div className="flex items-center gap-2">
+                      <select className="flex-1 px-3 py-2 text-sm rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                        <option>Select new drop location...</option>
+                        <option>Library</option>
+                        <option>Student Center</option>
+                        <option>Science Building</option>
+                        <option>Main Gate</option>
+                      </select>
+                      <Button
+                        size="sm"
+                        onClick={handleCustomizeRide}
+                      >
+                        Submit
+                      </Button>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">Requires admin approval. Request at least 1 hour before ride.</p>
                   </div>
                 </div>
               </div>
@@ -186,75 +321,79 @@ const StudentDashboard = () => {
             
             {/* Rides Section */}
             <div className="col-span-1">
-              <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-                <div className="flex border-b border-gray-100">
-                  <button
-                    className={cn(
-                      "flex-1 py-4 text-sm font-medium transition-colors",
-                      activeTab === 'upcoming' 
-                        ? "text-brand-600 border-b-2 border-brand-500" 
-                        : "text-gray-600 hover:text-brand-600"
-                    )}
-                    onClick={() => setActiveTab('upcoming')}
-                  >
-                    Upcoming Rides
-                  </button>
-                  <button
-                    className={cn(
-                      "flex-1 py-4 text-sm font-medium transition-colors",
-                      activeTab === 'history' 
-                        ? "text-brand-600 border-b-2 border-brand-500" 
-                        : "text-gray-600 hover:text-brand-600"
-                    )}
-                    onClick={() => setActiveTab('history')}
-                  >
-                    Ride History
-                  </button>
-                </div>
+              <Tabs defaultValue="rides" className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                <TabsList className="w-full grid grid-cols-3">
+                  <TabsTrigger value="rides">My Rides</TabsTrigger>
+                  <TabsTrigger value="notifications">Notifications</TabsTrigger>
+                  <TabsTrigger value="complaints">Feedback</TabsTrigger>
+                </TabsList>
                 
-                <div className="p-4">
+                <TabsContent value="rides" className="p-4">
+                  <div className="flex border-b border-gray-100 mb-3">
+                    <button
+                      className={cn(
+                        "flex-1 py-2 text-sm font-medium transition-colors",
+                        activeTab === 'upcoming' 
+                          ? "text-brand-600 border-b-2 border-brand-500" 
+                          : "text-gray-600 hover:text-brand-600"
+                      )}
+                      onClick={() => setActiveTab('upcoming')}
+                    >
+                      Upcoming Rides
+                    </button>
+                    <button
+                      className={cn(
+                        "flex-1 py-2 text-sm font-medium transition-colors",
+                        activeTab === 'history' 
+                          ? "text-brand-600 border-b-2 border-brand-500" 
+                          : "text-gray-600 hover:text-brand-600"
+                      )}
+                      onClick={() => setActiveTab('history')}
+                    >
+                      Ride History
+                    </button>
+                  </div>
+                  
                   {activeTab === 'upcoming' ? (
-                    <>
-                      <div className="space-y-3">
-                        {upcomingRides.map((ride) => (
-                          <div 
-                            key={ride.id} 
-                            className="p-4 rounded-lg border border-gray-100 hover:border-brand-200 hover:bg-brand-50/30 transition-colors cursor-pointer"
-                          >
-                            <div className="flex justify-between items-start mb-2">
-                              <h4 className="font-medium text-gray-900">{ride.routeName}</h4>
-                              <span 
-                                className={cn(
-                                  "text-xs font-medium px-2 py-1 rounded-full",
-                                  ride.status === 'on-time' && "bg-green-100 text-green-700",
-                                  ride.status === 'scheduled' && "bg-blue-100 text-blue-700"
-                                )}
-                              >
-                                {ride.status === 'on-time' ? 'On Time' : 'Scheduled'}
-                              </span>
-                            </div>
-                            <div className="text-sm text-gray-600 mb-2">
-                              Bus #{ride.busId} · {ride.departure}
-                            </div>
-                            <div className="flex items-center text-sm">
-                              <div className="bg-brand-100 text-brand-600 rounded-full w-6 h-6 flex items-center justify-center mr-2">
-                                <MapPin size={12} />
-                              </div>
-                              <span>{ride.from} → {ride.to}</span>
-                            </div>
-                            {ride.status === 'on-time' && (
-                              <div className="mt-3 text-xs font-medium text-brand-600">
-                                Arriving in: {ride.eta}
-                              </div>
-                            )}
+                    <div className="space-y-3">
+                      {upcomingRides.map((ride) => (
+                        <div 
+                          key={ride.id} 
+                          className="p-4 rounded-lg border border-gray-100 hover:border-brand-200 hover:bg-brand-50/30 transition-colors cursor-pointer"
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <h4 className="font-medium text-gray-900">{ride.routeName}</h4>
+                            <span 
+                              className={cn(
+                                "text-xs font-medium px-2 py-1 rounded-full",
+                                ride.status === 'on-time' && "bg-green-100 text-green-700",
+                                ride.status === 'scheduled' && "bg-blue-100 text-blue-700"
+                              )}
+                            >
+                              {ride.status === 'on-time' ? 'On Time' : 'Scheduled'}
+                            </span>
                           </div>
-                        ))}
-                      </div>
+                          <div className="text-sm text-gray-600 mb-2">
+                            Bus #{ride.busId} · {ride.departure} · Driver: {ride.driverName}
+                          </div>
+                          <div className="flex items-center text-sm">
+                            <div className="bg-brand-100 text-brand-600 rounded-full w-6 h-6 flex items-center justify-center mr-2">
+                              <MapPin size={12} />
+                            </div>
+                            <span>{ride.from} → {ride.to}</span>
+                          </div>
+                          {ride.status === 'on-time' && (
+                            <div className="mt-3 text-xs font-medium text-brand-600">
+                              Arriving in: {ride.eta}
+                            </div>
+                          )}
+                        </div>
+                      ))}
                       
                       <Button variant="outline" className="w-full mt-4">
                         Plan New Ride
                       </Button>
-                    </>
+                    </div>
                   ) : (
                     <div className="space-y-3">
                       {rideHistory.map((ride) => (
@@ -269,7 +408,7 @@ const StudentDashboard = () => {
                             </span>
                           </div>
                           <div className="text-sm text-gray-600 mb-2">
-                            Bus #{ride.busId} · {ride.departure}
+                            Bus #{ride.busId} · {ride.departure} · Driver: {ride.driverName}
                           </div>
                           <div className="flex items-center text-sm">
                             <div className="bg-gray-100 text-gray-600 rounded-full w-6 h-6 flex items-center justify-center mr-2">
@@ -279,35 +418,119 @@ const StudentDashboard = () => {
                           </div>
                         </div>
                       ))}
+                      <Button variant="outline" className="w-full mt-2">
+                        <Calendar size={14} className="mr-1" />
+                        Export Trip History
+                      </Button>
                     </div>
                   )}
-                </div>
-              </div>
-              
-              {/* Emergency Information */}
-              <div className="mt-6 p-4 rounded-xl border border-red-100 bg-red-50">
-                <div className="flex items-center mb-2">
-                  <div className="h-8 w-8 rounded-full bg-red-100 flex items-center justify-center text-red-600 mr-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"></polygon>
-                      <line x1="12" y1="8" x2="12" y2="12"></line>
-                      <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                    </svg>
+                </TabsContent>
+                
+                <TabsContent value="notifications" className="p-4">
+                  <div className="space-y-3">
+                    {notifications.map((notification) => (
+                      <div key={notification.id} className="p-4 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                        <div className="flex items-start gap-3">
+                          <div className={cn(
+                            "mt-1 rounded-full w-8 h-8 flex items-center justify-center flex-shrink-0",
+                            notification.type === 'delay' && "bg-orange-100 text-orange-600",
+                            notification.type === 'route' && "bg-blue-100 text-blue-600",
+                            notification.type === 'payment' && "bg-red-100 text-red-600"
+                          )}>
+                            {notification.type === 'delay' && <Clock size={16} />}
+                            {notification.type === 'route' && <MapPin size={16} />}
+                            {notification.type === 'payment' && <CreditCard size={16} />}
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm text-gray-800">{notification.message}</p>
+                            <p className="text-xs text-gray-500 mt-1">{notification.time}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    <div className="text-center mt-4">
+                      <Button variant="ghost" size="sm" className="text-xs text-gray-500">
+                        Clear All Notifications
+                      </Button>
+                    </div>
                   </div>
-                  <h3 className="font-semibold text-gray-900">Emergency Services</h3>
+                </TabsContent>
+                
+                <TabsContent value="complaints" className="p-4">
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-gray-900">Submit a Complaint or Feedback</h4>
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Type</label>
+                      <select className="w-full px-3 py-2 text-sm rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
+                        <option>Select complaint type...</option>
+                        <option>Bus Condition</option>
+                        <option>Driver Behavior</option>
+                        <option>Punctuality Issue</option>
+                        <option>Overcrowding</option>
+                        <option>Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Description</label>
+                      <textarea 
+                        rows={3}
+                        className="w-full px-3 py-2 text-sm rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+                        placeholder="Describe your issue in detail..."
+                      ></textarea>
+                    </div>
+                    <div>
+                      <label className="block text-sm text-gray-700 mb-1">Attach Photo (Optional)</label>
+                      <div className="border border-dashed border-gray-300 rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors">
+                        <div className="flex flex-col items-center">
+                          <FileText size={24} className="text-gray-400 mb-2" />
+                          <span className="text-sm text-gray-500">Click to upload</span>
+                        </div>
+                      </div>
+                    </div>
+                    <Button 
+                      className="w-full"
+                      onClick={handleSubmitComplaint}
+                    >
+                      Submit Complaint
+                    </Button>
+                  </div>
+                </TabsContent>
+              </Tabs>
+              
+              {/* Emergency Button */}
+              <div className="mt-6 p-6 rounded-xl border border-red-100 bg-red-50">
+                <div className="flex items-center mb-4">
+                  <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 mr-3">
+                    <AlertTriangle size={18} />
+                  </div>
+                  <h3 className="font-semibold text-gray-900">Emergency SOS</h3>
                 </div>
                 <p className="text-sm text-gray-700 mb-3">
-                  Need immediate assistance? Use the emergency button to alert campus security.
+                  Press and hold the button for 3 seconds to send an emergency alert to campus security and administrators.
                 </p>
-                <Button 
-                  variant="default" 
-                  className="w-full bg-red-600 hover:bg-red-700 text-white"
-                  onClick={() => {
-                    toast.error("Emergency alert sent to campus security");
-                  }}
+                <button 
+                  className={cn(
+                    "w-full py-3 px-4 rounded-lg font-medium text-white transition-all relative overflow-hidden",
+                    emergencyPressed 
+                      ? "bg-red-700 animate-pulse" 
+                      : "bg-red-600 hover:bg-red-700"
+                  )}
+                  onTouchStart={handleEmergencyTouchStart}
+                  onTouchEnd={handleEmergencyTouchEnd}
+                  onMouseDown={handleEmergencyTouchStart}
+                  onMouseUp={handleEmergencyTouchEnd}
+                  onMouseLeave={handleEmergencyTouchEnd}
                 >
-                  Send Emergency Alert
-                </Button>
+                  {emergencyPressed ? "SOS ACTIVATED" : "Hold to Send SOS"}
+                  
+                  {/* Progress indicator for press-and-hold */}
+                  {emergencyTimer && !emergencyPressed && (
+                    <div className="absolute bottom-0 left-0 h-1 bg-white animate-[progress_3s_linear_forwards]"></div>
+                  )}
+                </button>
+                <p className="text-xs text-gray-500 mt-2 text-center">
+                  This will share your current location with emergency responders.
+                </p>
               </div>
             </div>
           </div>

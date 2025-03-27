@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -26,7 +27,7 @@ const Hero: React.FC<HeroProps> = ({ className }) => {
           </p>
           <div className="space-x-4">
             <Link to="/student">
-              <Button variant="primary" size="lg">
+              <Button variant="default" size="lg">
                 Student Dashboard
               </Button>
             </Link>
