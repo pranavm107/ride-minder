@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useIsMobile, useDeviceInfo } from '@/hooks/use-mobile';
 import StopsPage from '@/components/StopsPage';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const DriverDashboard = () => {
   const [status, setStatus] = useState<'offline' | 'online' | 'on-route'>('online');
@@ -18,6 +18,9 @@ const DriverDashboard = () => {
   
   const { isMobile } = useDeviceInfo();
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  const isHomePage = location.pathname === '/';
 
   const students = [
     { id: 1, name: 'Emma Wilson', stop: 'Student Center', status: 'boarded', imageUrl: '' },
