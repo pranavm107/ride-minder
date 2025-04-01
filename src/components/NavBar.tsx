@@ -1,13 +1,17 @@
 
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Bus, User, MapPin } from 'lucide-react';
+import { Bus, User, MapPin, Menu, X } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { useDeviceInfo } from '@/hooks/use-mobile';
 
 const NavBar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { isMobile } = useDeviceInfo();
   
   // Add scroll event listener to change navbar appearance
   useEffect(() => {
@@ -76,15 +80,53 @@ const NavBar = () => {
           </Button>
         </div>
         
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu */}
         <div className="md:hidden flex items-center">
-          <Button variant="ghost" size="icon" className="text-gray-700">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="4" x2="20" y1="12" y2="12"></line>
-              <line x1="4" x2="20" y1="6" y2="6"></line>
-              <line x1="4" x2="20" y1="18" y2="18"></line>
-            </svg>
-          </Button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-gray-700">
+                <Menu size={24} />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[240px] sm:w-[300px]">
+              <div className="py-4 space-y-4">
+                <div className="mb-8">
+                  <div className="flex items-center gap-2 mb-6">
+                    <div className="h-9 w-9 rounded-lg bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white shadow-md">
+                      <Bus className="h-5 w-5" />
+                    </div>
+                    <span className="font-semibold text-xl text-gray-900">RideMinder</span>
+                  </div>
+                </div>
+                
+                <div className="flex flex-col space-y-3">
+                  {menuItems.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={cn(
+                        'px-2 py-3 rounded-md text-base font-medium transition-colors',
+                        location.pathname === item.path 
+                          ? 'bg-brand-50 text-brand-500' 
+                          : 'text-gray-600 hover:bg-gray-100'
+                      )}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
+                
+                <div className="pt-4 mt-6 border-t border-gray-100">
+                  <Button 
+                    variant="default" 
+                    className="w-full bg-brand-500 hover:bg-brand-600"
+                  >
+                    Sign In
+                  </Button>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </nav>

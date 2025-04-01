@@ -2,10 +2,11 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { MapPin, Clock, User, CheckCircle, X, AlertTriangle } from 'lucide-react';
+import { MapPin, Clock, User, CheckCircle, X, AlertTriangle, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { useDeviceInfo } from '@/hooks/use-mobile';
 import { Stop, Student, useRouteStops } from '@/hooks/use-route-stops';
+import { useNavigate } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -18,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const StopsPage = () => {
   const { isMobile, isTouch } = useDeviceInfo();
+  const navigate = useNavigate();
   const { 
     stops, 
     updateStudentStatus, 
@@ -40,6 +42,10 @@ const StopsPage = () => {
     toast.success("Stop completed, proceeding to next stop");
   };
 
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
   const StudentStatusBadge = ({ status }: { status: Student['status'] }) => (
     <span className={cn(
       "text-xs px-2 py-0.5 rounded-full",
@@ -55,10 +61,20 @@ const StopsPage = () => {
   if (isMobile) {
     return (
       <div className="space-y-4 p-4">
-        <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-          <MapPin size={20} className="text-brand-500" />
-          Route Stops
-        </h2>
+        <div className="flex items-center mb-4">
+          <Button 
+            variant="ghost" 
+            size="sm"
+            className="mr-2"
+            onClick={handleGoBack}
+          >
+            <ArrowLeft size={20} />
+          </Button>
+          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <MapPin size={20} className="text-brand-500" />
+            Route Stops
+          </h2>
+        </div>
         
         {currentStop && (
           <Card className="border-brand-100 bg-brand-50">
@@ -167,10 +183,19 @@ const StopsPage = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <MapPin size={24} className="text-brand-500" />
-          Route Stops
-        </h2>
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={handleGoBack}
+          >
+            <ArrowLeft size={20} />
+          </Button>
+          <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
+            <MapPin size={24} className="text-brand-500" />
+            Route Stops
+          </h2>
+        </div>
       </div>
       
       {currentStop && (

@@ -1,5 +1,6 @@
 
 import * as React from "react"
+import { useLocation } from "react-router-dom"
 
 const MOBILE_BREAKPOINT = 768
 
@@ -43,11 +44,17 @@ export function useTouchDevice() {
 export function useDeviceInfo() {
   const isMobile = useIsMobile()
   const isTouch = useTouchDevice()
+  const location = useLocation()
   
+  const isRoute = (routePath: string) => {
+    return location.pathname === routePath
+  }
+
   return {
     isMobile,
     isTouch,
     isDesktop: !isMobile,
-    isMobileOrTouch: isMobile || isTouch
+    isMobileOrTouch: isMobile || isTouch,
+    isRoute
   }
 }
