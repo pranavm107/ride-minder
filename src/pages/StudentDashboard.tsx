@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
@@ -8,12 +7,15 @@ import { Bus, Clock, MapPin, User, MessageSquare, Search, Calendar, Bell, AlertT
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'history'>('upcoming');
   const [emergencyPressed, setEmergencyPressed] = useState(false);
   const [emergencyTimer, setEmergencyTimer] = useState<NodeJS.Timeout | null>(null);
-  const [skipRide, setSkipRide] = useState(false);
+  const [skipMorningRide, setSkipMorningRide] = useState(false);
+  const [skipEveningRide, setSkipEveningRide] = useState(false);
+  const isMobile = useIsMobile();
 
   const upcomingRides = [
     { 
@@ -105,20 +107,32 @@ const StudentDashboard = () => {
       duration: 10000,
     });
     
-    // This would trigger real emergency protocols in a production app
     setTimeout(() => setEmergencyPressed(false), 5000);
   };
 
-  const handleSkipRide = () => {
-    setSkipRide(!skipRide);
-    if (!skipRide) {
-      toast.success("Your PM ride has been skipped", {
-        description: "Driver has been notified that you won't be riding this evening.",
-      });
+  const handleSkipRide = (type: 'morning' | 'evening') => {
+    if (type === 'morning') {
+      setSkipMorningRide(!skipMorningRide);
+      if (!skipMorningRide) {
+        toast.success("Your AM ride has been skipped", {
+          description: "Driver has been notified that you won't be riding this morning.",
+        });
+      } else {
+        toast.success("Your AM ride has been restored", {
+          description: "You're back on the pick-up list for this morning.",
+        });
+      }
     } else {
-      toast.success("Your PM ride has been restored", {
-        description: "You're back on the pick-up list for this evening.",
-      });
+      setSkipEveningRide(!skipEveningRide);
+      if (!skipEveningRide) {
+        toast.success("Your PM ride has been skipped", {
+          description: "Driver has been notified that you won't be riding this evening.",
+        });
+      } else {
+        toast.success("Your PM ride has been restored", {
+          description: "You're back on the pick-up list for this evening.",
+        });
+      }
     }
   };
 
@@ -140,7 +154,6 @@ const StudentDashboard = () => {
       
       <main className="pt-20 pb-12 px-4 md:px-8">
         <div className="max-w-7xl mx-auto">
-          {/* Dashboard Header */}
           <div className="mb-8 mt-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div>
@@ -153,13 +166,19 @@ const StudentDashboard = () => {
                   <input 
                     type="text" 
                     placeholder="Search routes..." 
-                    className="px-4 py-2 pl-10 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all"
+                    className={cn(
+                      "px-4 py-2 pl-10 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all",
+                      isMobile && "mobile-input"
+                    )}
                   />
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 </div>
                 <Button 
                   variant="default" 
-                  className="bg-brand-500 hover:bg-brand-600"
+                  className={cn(
+                    "bg-brand-500 hover:bg-brand-600", 
+                    isMobile && "mobile-action-button"
+                  )}
                   onClick={() => toast.success("Refreshed successfully")}
                 >
                   Refresh
@@ -167,8 +186,94 @@ const StudentDashboard = () => {
               </div>
             </div>
           </div>
+
+          <div className="bg-white rounded-xl p-6 mb-6 border border-gray-100 shadow-sm">
+            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <SkipForward size={18} className="text-brand-500" />
+              Ride Customization
+            </h3>
+
+            <div className="space-y-4 sm:space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className={cn(
+                  "p-4 rounded-lg border flex justify-between items-center",
+                  skipMorningRide ? "bg-gray-50 border-gray-200" : "bg-brand-50/30 border-brand-100"
+                )}>
+                  <div>
+                    <h4 className="font-medium text-gray-900">Morning Ride</h4>
+                    <p className="text-sm text-gray-600">Today's pickup at 7:30 AM</p>
+                  </div>
+                  <div className="relative">
+                    <button 
+                      onClick={() => handleSkipRide('morning')}
+                      className={cn(
+                        "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                        skipMorningRide ? "bg-brand-500" : "bg-gray-200"
+                      )}
+                    >
+                      <span 
+                        className={cn(
+                          "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform",
+                          skipMorningRide ? "translate-x-5" : "translate-x-0"
+                        )}
+                      />
+                    </button>
+                  </div>
+                </div>
+
+                <div className={cn(
+                  "p-4 rounded-lg border flex justify-between items-center",
+                  skipEveningRide ? "bg-gray-50 border-gray-200" : "bg-brand-50/30 border-brand-100"
+                )}>
+                  <div>
+                    <h4 className="font-medium text-gray-900">Evening Ride</h4>
+                    <p className="text-sm text-gray-600">Today's pickup at 3:45 PM</p>
+                  </div>
+                  <div className="relative">
+                    <button 
+                      onClick={() => handleSkipRide('evening')}
+                      className={cn(
+                        "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
+                        skipEveningRide ? "bg-brand-500" : "bg-gray-200"
+                      )}
+                    >
+                      <span 
+                        className={cn(
+                          "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform",
+                          skipEveningRide ? "translate-x-5" : "translate-x-0"
+                        )}
+                      />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-gray-900 mb-2">Request Drop Location Change</h4>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <select className={cn(
+                    "flex-1 px-3 py-2 text-sm rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent",
+                    isMobile && "mobile-input"
+                  )}>
+                    <option>Select new drop location...</option>
+                    <option>Library</option>
+                    <option>Student Center</option>
+                    <option>Science Building</option>
+                    <option>Main Gate</option>
+                  </select>
+                  <Button
+                    size={isMobile ? "lg" : "sm"}
+                    className={isMobile ? "w-full py-3" : ""}
+                    onClick={handleCustomizeRide}
+                  >
+                    Submit Request
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">Requires admin approval. Request at least 1 hour before ride.</p>
+              </div>
+            </div>
+          </div>
           
-          {/* Dashboard Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <DashboardCard
               title="Active Route"
@@ -194,13 +299,10 @@ const StudentDashboard = () => {
             />
           </div>
           
-          {/* Main Content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Map Section */}
             <div className="lg:col-span-2">
               <MapView userType="student" />
               
-              {/* ETA Information */}
               <div className="bg-white rounded-xl p-6 mt-6 border border-gray-100 shadow-sm">
                 <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
                   <Clock size={18} className="text-brand-500" />
@@ -242,8 +344,8 @@ const StudentDashboard = () => {
                     <div className="flex gap-2 mt-4">
                       <Button 
                         variant="outline" 
-                        size="sm" 
-                        className="text-xs"
+                        size={isMobile ? "default" : "sm"} 
+                        className={cn("text-xs", isMobile && "py-3 flex-1")}
                         onClick={() => toast.success("Notification set for 2 minutes before arrival")}
                       >
                         <Bell size={14} className="mr-1" />
@@ -251,8 +353,8 @@ const StudentDashboard = () => {
                       </Button>
                       <Button 
                         variant="ghost" 
-                        size="sm" 
-                        className="text-xs text-brand-500"
+                        size={isMobile ? "default" : "sm"} 
+                        className={cn("text-xs text-brand-500", isMobile && "py-3 flex-1")}
                         onClick={() => toast.success("Message sent to driver")}
                       >
                         <MessageSquare size={14} className="mr-1" />
@@ -262,64 +364,8 @@ const StudentDashboard = () => {
                   </div>
                 </div>
               </div>
-
-              {/* Ride Customization Section */}
-              <div className="bg-white rounded-xl p-6 mt-6 border border-gray-100 shadow-sm">
-                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <SkipForward size={18} className="text-brand-500" />
-                  Ride Customization
-                </h3>
-
-                <div className="space-y-6">
-                  {/* Skip PM Ride Toggle */}
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h4 className="font-medium text-gray-900">Skip Evening Ride Today</h4>
-                      <p className="text-sm text-gray-600">Driver will be notified you won't be riding</p>
-                    </div>
-                    <div className="relative">
-                      <button 
-                        onClick={handleSkipRide}
-                        className={cn(
-                          "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-                          skipRide ? "bg-brand-500" : "bg-gray-200"
-                        )}
-                      >
-                        <span 
-                          className={cn(
-                            "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform",
-                            skipRide ? "translate-x-5" : "translate-x-0"
-                          )}
-                        />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Route Change Request */}
-                  <div>
-                    <h4 className="font-medium text-gray-900 mb-2">Request Drop Location Change</h4>
-                    <div className="flex items-center gap-2">
-                      <select className="flex-1 px-3 py-2 text-sm rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
-                        <option>Select new drop location...</option>
-                        <option>Library</option>
-                        <option>Student Center</option>
-                        <option>Science Building</option>
-                        <option>Main Gate</option>
-                      </select>
-                      <Button
-                        size="sm"
-                        onClick={handleCustomizeRide}
-                      >
-                        Submit
-                      </Button>
-                    </div>
-                    <p className="text-xs text-gray-500 mt-2">Requires admin approval. Request at least 1 hour before ride.</p>
-                  </div>
-                </div>
-              </div>
             </div>
             
-            {/* Rides Section */}
             <div className="col-span-1">
               <Tabs defaultValue="rides" className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
                 <TabsList className="w-full grid grid-cols-3">
@@ -497,7 +543,6 @@ const StudentDashboard = () => {
                 </TabsContent>
               </Tabs>
               
-              {/* Emergency Button */}
               <div className="mt-6 p-6 rounded-xl border border-red-100 bg-red-50">
                 <div className="flex items-center mb-4">
                   <div className="h-10 w-10 rounded-full bg-red-100 flex items-center justify-center text-red-600 mr-3">
@@ -513,7 +558,8 @@ const StudentDashboard = () => {
                     "w-full py-3 px-4 rounded-lg font-medium text-white transition-all relative overflow-hidden",
                     emergencyPressed 
                       ? "bg-red-700 animate-pulse" 
-                      : "bg-red-600 hover:bg-red-700"
+                      : "bg-red-600 hover:bg-red-700",
+                    isMobile && "emergency-button py-5"
                   )}
                   onTouchStart={handleEmergencyTouchStart}
                   onTouchEnd={handleEmergencyTouchEnd}
@@ -523,7 +569,6 @@ const StudentDashboard = () => {
                 >
                   {emergencyPressed ? "SOS ACTIVATED" : "Hold to Send SOS"}
                   
-                  {/* Progress indicator for press-and-hold */}
                   {emergencyTimer && !emergencyPressed && (
                     <div className="absolute bottom-0 left-0 h-1 bg-white animate-[progress_3s_linear_forwards]"></div>
                   )}

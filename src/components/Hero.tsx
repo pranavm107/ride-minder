@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Smartphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile, useTouchDevice } from '@/hooks/use-mobile';
 
 interface HeroProps {
   className?: string;
@@ -12,6 +12,7 @@ interface HeroProps {
 
 const Hero: React.FC<HeroProps> = ({ className }) => {
   const isMobile = useIsMobile();
+  const isTouch = useTouchDevice();
   
   return (
     <section
@@ -34,6 +35,7 @@ const Hero: React.FC<HeroProps> = ({ className }) => {
           
           <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
             Enhanced safety and efficiency with our mobile-optimized bus tracking solution.
+            {isTouch && <span className="font-medium"> Optimized for your touch device!</span>}
           </p>
           
           <div className="flex flex-col sm:flex-row sm:space-x-4 justify-center space-y-3 sm:space-y-0">

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
@@ -7,10 +6,13 @@ import { cn } from '@/lib/utils';
 import { Bus, Clock, MapPin, User, MessageSquare, Search, Camera, Phone, Bell, Settings, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const DriverDashboard = () => {
   const [status, setStatus] = useState<'offline' | 'online' | 'on-route'>('online');
   const [currentTab, setCurrentTab] = useState<'passengers' | 'route' | 'communication'>('passengers');
+  const [showNavigation, setShowNavigation] = useState(false);
+  const isMobile = useIsMobile();
 
   const students = [
     { id: 1, name: 'Emma Wilson', stop: 'Student Center', status: 'boarded', imageUrl: '' },
@@ -39,6 +41,12 @@ const DriverDashboard = () => {
   
   const delayRoute = () => {
     toast.info("All passengers have been notified of the 10-minute delay.");
+  };
+
+  const startRoute = () => {
+    setStatus('on-route');
+    setShowNavigation(true);
+    toast.success("Route started successfully. Navigation activated.");
   };
   
   return (
@@ -73,11 +81,17 @@ const DriverDashboard = () => {
                 
                 <Button 
                   variant={status === 'offline' ? 'default' : 'outline'} 
-                  className={status === 'offline' ? 'bg-brand-500 hover:bg-brand-600' : ''}
+                  className={cn(
+                    status === 'offline' ? 'bg-brand-500 hover:bg-brand-600' : '',
+                    isMobile && 'mobile-action-button'
+                  )}
                   onClick={() => {
                     const newStatus = status === 'offline' ? 'online' : 'offline';
                     setStatus(newStatus);
                     toast.success(`You are now ${newStatus}`);
+                    if (newStatus === 'offline') {
+                      setShowNavigation(false);
+                    }
                   }}
                 >
                   {status === 'offline' ? 'Go Online' : 'Go Offline'}
@@ -118,96 +132,33 @@ const DriverDashboard = () => {
           
           {/* Main Content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Navigation Map */}
+            {/* Navigation Section */}
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm mb-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-semibold text-gray-900">Real-Time Navigation</h3>
-                  
-                  <div className="flex items-center gap-2">
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => toast.info("Voice navigation activated")}
-                      className="flex items-center gap-1"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                        <line x1="12" y1="19" x2="12" y2="23"></line>
-                        <line x1="8" y1="23" x2="16" y2="23"></line>
-                      </svg>
-                      Voice
-                    </Button>
-                    <Button 
-                      variant="outline" 
-                      size="sm"
-                      onClick={() => toast.info("Showing traffic information")}
-                    >
-                      Traffic
-                    </Button>
-                  </div>
-                </div>
-                
-                <MapView userType="driver" />
-                
-                <div className="mt-4 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full bg-brand-100 flex items-center justify-center">
-                      <MapPin size={16} className="text-brand-500" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900">Next: Library</p>
-                      <p className="text-xs text-gray-500">3 min (0.8 miles)</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <Button 
-                      variant="outline"
-                      size="sm"
-                      onClick={delayRoute}
-                      className="text-xs flex items-center gap-1"
-                    >
-                      <AlertTriangle size={14} />
-                      Report Delay
-                    </Button>
-                    <Button
-                      variant="default"
-                      size="sm"
-                      className="bg-brand-500 hover:bg-brand-600 text-xs"
-                      onClick={() => toast.success("Turn-by-turn directions started")}
-                    >
-                      Start Navigation
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              
-              {/* Navigation Controls */}
-              <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm">
+              {/* Route Navigation Controls - Always visible */}
+              <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm mb-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="font-semibold text-gray-900 flex items-center gap-2">
                     <Bus size={18} className="text-brand-500" />
                     Route Navigation
                   </h3>
                   
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-col sm:flex-row items-center gap-2">
                     <Button 
                       variant="outline" 
-                      size="sm"
+                      size={isMobile ? "lg" : "sm"}
                       onClick={delayRoute}
+                      className={cn(isMobile && "w-full mobile-action-button")}
                     >
                       Delay 10 min
                     </Button>
                     <Button 
                       variant="default" 
-                      size="sm"
-                      className="bg-brand-500 hover:bg-brand-600"
-                      onClick={() => {
-                        setStatus('on-route');
-                        toast.success("Route started successfully");
-                      }}
+                      size={isMobile ? "lg" : "sm"}
+                      className={cn(
+                        "bg-brand-500 hover:bg-brand-600",
+                        isMobile && "w-full mobile-action-button"
+                      )}
+                      onClick={startRoute}
                       disabled={status === 'on-route'}
                     >
                       {status === 'on-route' ? 'In Progress' : 'Start Route'}
@@ -222,13 +173,17 @@ const DriverDashboard = () => {
                   {/* Stops */}
                   <div className="space-y-6 relative z-10">
                     {stops.map((stop, index) => (
-                      <div key={stop.id} className="flex items-start ml-4 pl-6 relative">
+                      <div key={stop.id} className={cn(
+                        "flex items-start ml-4 pl-6 relative",
+                        isMobile && "touch-card p-3 ml-2 pl-10"
+                      )}>
                         {/* Status Indicator */}
                         <div className={cn(
                           "absolute left-0 top-1 h-4 w-4 rounded-full border-2 border-white",
                           stop.status === 'completed' && 'bg-green-500',
                           stop.status === 'current' && 'bg-brand-500 animate-pulse',
-                          stop.status === 'upcoming' && 'bg-gray-300'
+                          stop.status === 'upcoming' && 'bg-gray-300',
+                          isMobile && "h-6 w-6 -left-2"
                         )}></div>
                         
                         {/* Stop Info */}
@@ -253,7 +208,7 @@ const DriverDashboard = () => {
                               <Button 
                                 variant="outline" 
                                 size="sm" 
-                                className="text-xs"
+                                className={cn("text-xs", isMobile && "py-2.5")}
                                 onClick={() => toast.success(`Arrived at ${stop.name}`)}
                               >
                                 Mark as Arrived
@@ -261,7 +216,7 @@ const DriverDashboard = () => {
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                className="text-xs text-brand-500"
+                                className={cn("text-xs text-brand-500", isMobile && "py-2.5")}
                                 onClick={() => toast.success(`All passengers at ${stop.name} notified`)}
                               >
                                 Notify Passengers
@@ -274,6 +229,77 @@ const DriverDashboard = () => {
                   </div>
                 </div>
               </div>
+              
+              {/* Navigation Map - Only visible after starting route */}
+              {showNavigation && (
+                <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900">Real-Time Navigation</h3>
+                    
+                    <div className="flex items-center gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => toast.info("Voice navigation activated")}
+                        className={cn("flex items-center gap-1", isMobile && "py-2.5")}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                          <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                          <line x1="12" y1="19" x2="12" y2="23"></line>
+                          <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                        Voice
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => toast.info("Showing traffic information")}
+                        className={isMobile ? "py-2.5" : ""}
+                      >
+                        Traffic
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <MapView userType="driver" />
+                  
+                  <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="flex items-center gap-2">
+                      <div className="h-8 w-8 rounded-full bg-brand-100 flex items-center justify-center">
+                        <MapPin size={16} className="text-brand-500" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">Next: Library</p>
+                        <p className="text-xs text-gray-500">3 min (0.8 miles)</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-3">
+                      <Button 
+                        variant="outline"
+                        size={isMobile ? "default" : "sm"}
+                        onClick={delayRoute}
+                        className={cn("text-xs flex items-center gap-1", isMobile && "flex-1")}
+                      >
+                        <AlertTriangle size={14} />
+                        Report Delay
+                      </Button>
+                      <Button
+                        variant="default"
+                        size={isMobile ? "default" : "sm"}
+                        className={cn(
+                          "bg-brand-500 hover:bg-brand-600 text-xs",
+                          isMobile && "flex-1"
+                        )}
+                        onClick={() => toast.success("Turn-by-turn directions started")}
+                      >
+                        Start Navigation
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
             
             {/* Side Panel */}
