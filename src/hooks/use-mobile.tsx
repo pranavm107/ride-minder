@@ -1,3 +1,4 @@
+
 import * as React from "react"
 
 const MOBILE_BREAKPOINT = 768
@@ -16,4 +17,19 @@ export function useIsMobile() {
   }, [])
 
   return !!isMobile
+}
+
+export function useTouchDevice() {
+  const [isTouch, setIsTouch] = React.useState(false)
+  
+  React.useEffect(() => {
+    const isTouchDevice = 
+      'ontouchstart' in window || 
+      navigator.maxTouchPoints > 0 || 
+      (navigator as any).msMaxTouchPoints > 0
+    
+    setIsTouch(isTouchDevice)
+  }, [])
+  
+  return isTouch
 }
