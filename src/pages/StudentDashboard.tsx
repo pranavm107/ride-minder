@@ -1,21 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
-import DashboardCard from '@/components/DashboardCard';
 import { cn } from '@/lib/utils';
 import { Bus, Clock, MapPin, User, MessageSquare, Search, Calendar, Bell, AlertTriangle, FileText, CreditCard, SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from '@/hooks/use-mobile';
+import { Card, CardContent } from '@/components/ui/card';
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'history'>('upcoming');
   const [emergencyPressed, setEmergencyPressed] = useState(false);
   const [emergencyTimer, setEmergencyTimer] = useState<NodeJS.Timeout | null>(null);
-  const [skipMorningRide, setSkipMorningRide] = useState(false);
-  const [skipEveningRide, setSkipEveningRide] = useState(false);
+  const [skipMorningRide, setSkipMorningRide] = useState(true);
+  const [skipEveningRide, setSkipEveningRide] = useState(true);
+  const [currentOfferIndex, setCurrentOfferIndex] = useState(0);
   const isMobile = useIsMobile();
+
+  const specialOffers = [
+    {
+      id: 1,
+      title: "Student Meal Deal",
+      description: "Get 20% off on all meals at the Campus Café with your student ID",
+      discount: "20% OFF",
+      validUntil: "Valid until May 31",
+      bgColor: "bg-gradient-to-r from-orange-100 to-amber-50",
+      textColor: "text-orange-700",
+      accentColor: "bg-orange-500"
+    },
+    {
+      id: 2,
+      title: "Breakfast Special",
+      description: "Buy any breakfast item and get a free coffee before 10am",
+      discount: "FREE COFFEE",
+      validUntil: "Valid every weekday",
+      bgColor: "bg-gradient-to-r from-blue-100 to-cyan-50",
+      textColor: "text-blue-700",
+      accentColor: "bg-blue-500"
+    },
+    {
+      id: 3,
+      title: "Late Night Study Offer",
+      description: "50% off on all snacks and drinks at the Library Café after 8pm",
+      discount: "50% OFF",
+      validUntil: "During exam weeks",
+      bgColor: "bg-gradient-to-r from-purple-100 to-violet-50",
+      textColor: "text-purple-700",
+      accentColor: "bg-purple-500"
+    }
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentOfferIndex((prevIndex) => (prevIndex + 1) % specialOffers.length);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [specialOffers.length]);
 
   const upcomingRides = [
     { 
@@ -187,6 +229,61 @@ const StudentDashboard = () => {
             </div>
           </div>
 
+          <div className="mb-8 overflow-hidden rounded-xl">
+            <Card className="border border-gray-100 shadow-sm overflow-hidden">
+              <div className="relative h-[200px] overflow-hidden">
+                {specialOffers.map((offer, index) => (
+                  <div 
+                    key={offer.id}
+                    className={cn(
+                      "absolute inset-0 w-full h-full transition-all duration-500 ease-in-out",
+                      offer.bgColor,
+                      index === currentOfferIndex ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"
+                    )}
+                  >
+                    <CardContent className="p-6 h-full">
+                      <div className="flex h-full">
+                        <div className="flex-1 flex flex-col justify-between">
+                          <div>
+                            <h3 className={cn("font-bold text-xl mb-1", offer.textColor)}>
+                              {offer.title}
+                            </h3>
+                            <p className="text-gray-700 mb-4">{offer.description}</p>
+                          </div>
+                          <div className="text-gray-500 text-sm">{offer.validUntil}</div>
+                        </div>
+                        
+                        <div className="w-1/3 flex items-center justify-center">
+                          <div className={cn("p-4 rounded-full", offer.accentColor)}>
+                            <span className="text-white font-bold text-lg whitespace-nowrap">
+                              {offer.discount}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </div>
+                ))}
+                
+                <div className="absolute bottom-3 left-0 right-0 flex justify-center">
+                  <div className="flex gap-1.5">
+                    {specialOffers.map((_, index) => (
+                      <button 
+                        key={index}
+                        onClick={() => setCurrentOfferIndex(index)}
+                        className={cn(
+                          "w-2 h-2 rounded-full transition-all",
+                          index === currentOfferIndex ? "bg-brand-500 w-4" : "bg-gray-300"
+                        )}
+                        aria-label={`View offer ${index + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Card>
+          </div>
+
           <div className="bg-white rounded-xl p-6 mb-6 border border-gray-100 shadow-sm">
             <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <SkipForward size={18} className="text-brand-500" />
@@ -197,7 +294,7 @@ const StudentDashboard = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className={cn(
                   "p-4 rounded-lg border flex justify-between items-center",
-                  skipMorningRide ? "bg-gray-50 border-gray-200" : "bg-brand-50/30 border-brand-100"
+                  skipMorningRide ? "bg-brand-50/30 border-brand-100" : "bg-gray-50 border-gray-200"
                 )}>
                   <div>
                     <h4 className="font-medium text-gray-900">Morning Ride</h4>
@@ -223,7 +320,7 @@ const StudentDashboard = () => {
 
                 <div className={cn(
                   "p-4 rounded-lg border flex justify-between items-center",
-                  skipEveningRide ? "bg-gray-50 border-gray-200" : "bg-brand-50/30 border-brand-100"
+                  skipEveningRide ? "bg-brand-50/30 border-brand-100" : "bg-gray-50 border-gray-200"
                 )}>
                   <div>
                     <h4 className="font-medium text-gray-900">Evening Ride</h4>
@@ -272,31 +369,6 @@ const StudentDashboard = () => {
                 <p className="text-xs text-gray-500 mt-2">Requires admin approval. Request at least 1 hour before ride.</p>
               </div>
             </div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <DashboardCard
-              title="Active Route"
-              value="North Campus Express"
-              icon={<Bus size={18} />}
-              className="col-span-1"
-            />
-            <DashboardCard
-              title="Next Bus Arrival"
-              value="5 minutes"
-              trend={-2}
-              trendLabel="faster than usual"
-              icon={<Clock size={18} />}
-              className="col-span-1"
-            />
-            <DashboardCard
-              title="Monthly Rides"
-              value="32"
-              trend={15}
-              trendLabel="vs. last month"
-              icon={<User size={18} />}
-              className="col-span-1"
-            />
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
