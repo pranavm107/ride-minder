@@ -6,13 +6,16 @@ import { cn } from '@/lib/utils';
 import { Bus, Clock, MapPin, User, MessageSquare, Search, Camera, Phone, Bell, Settings, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useIsMobile, useDeviceInfo } from '@/hooks/use-mobile';
+import StopsPage from '@/components/StopsPage';
 
 const DriverDashboard = () => {
   const [status, setStatus] = useState<'offline' | 'online' | 'on-route'>('online');
   const [currentTab, setCurrentTab] = useState<'passengers' | 'route' | 'communication'>('passengers');
   const [showNavigation, setShowNavigation] = useState(false);
-  const isMobile = useIsMobile();
+  const [currentView, setCurrentView] = useState<'dashboard' | 'stops' | 'messages'>('dashboard');
+  
+  const { isMobile } = useDeviceInfo();
 
   const students = [
     { id: 1, name: 'Emma Wilson', stop: 'Student Center', status: 'boarded', imageUrl: '' },
@@ -48,6 +51,34 @@ const DriverDashboard = () => {
     setShowNavigation(true);
     toast.success("Route started successfully. Navigation activated.");
   };
+
+  if (currentView === 'stops') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <NavBar />
+        <main className="pt-20 pb-12 px-4 md:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-4">
+              <Button 
+                variant="ghost" 
+                size={isMobile ? "lg" : "default"}
+                className="gap-2"
+                onClick={() => setCurrentView('dashboard')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left">
+                  <path d="m12 19-7-7 7-7"></path>
+                  <path d="M19 12H5"></path>
+                </svg>
+                Back to Dashboard
+              </Button>
+            </div>
+            
+            <StopsPage />
+          </div>
+        </main>
+      </div>
+    );
+  }
   
   return (
     <div className="min-h-screen bg-gray-50">
@@ -55,7 +86,6 @@ const DriverDashboard = () => {
       
       <main className="pt-20 pb-12 px-4 md:px-8">
         <div className="max-w-7xl mx-auto">
-          {/* Dashboard Header */}
           <div className="mb-8 mt-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div>
@@ -100,7 +130,6 @@ const DriverDashboard = () => {
             </div>
           </div>
           
-          {/* Dashboard Stats */}
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
             <DashboardCard
               title="Current Route"
@@ -130,11 +159,8 @@ const DriverDashboard = () => {
             />
           </div>
           
-          {/* Main Content */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Navigation Section */}
             <div className="lg:col-span-2">
-              {/* Route Navigation Controls - Always visible */}
               <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm mb-6">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="font-semibold text-gray-900 flex items-center gap-2">
@@ -166,71 +192,17 @@ const DriverDashboard = () => {
                   </div>
                 </div>
                 
-                <div className="relative">
-                  {/* Progress Indicator */}
-                  <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200 z-0"></div>
-                  
-                  {/* Stops */}
-                  <div className="space-y-6 relative z-10">
-                    {stops.map((stop, index) => (
-                      <div key={stop.id} className={cn(
-                        "flex items-start ml-4 pl-6 relative",
-                        isMobile && "touch-card p-3 ml-2 pl-10"
-                      )}>
-                        {/* Status Indicator */}
-                        <div className={cn(
-                          "absolute left-0 top-1 h-4 w-4 rounded-full border-2 border-white",
-                          stop.status === 'completed' && 'bg-green-500',
-                          stop.status === 'current' && 'bg-brand-500 animate-pulse',
-                          stop.status === 'upcoming' && 'bg-gray-300',
-                          isMobile && "h-6 w-6 -left-2"
-                        )}></div>
-                        
-                        {/* Stop Info */}
-                        <div className="flex-1">
-                          <div className="flex justify-between items-center">
-                            <h4 className="font-medium text-gray-900 flex items-center gap-1">
-                              {stop.name}
-                              {stop.status === 'current' && (
-                                <span className="text-xs font-medium text-brand-600 bg-brand-50 px-2 py-0.5 rounded-full">
-                                  Current
-                                </span>
-                              )}
-                            </h4>
-                            <span className="text-sm text-gray-600">{stop.time}</span>
-                          </div>
-                          <div className="text-sm text-gray-600 mt-1">
-                            {stop.studentsCount} passengers {stop.status === 'completed' ? 'boarded' : 'waiting'}
-                          </div>
-                          
-                          {stop.status === 'current' && (
-                            <div className="mt-3 flex gap-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className={cn("text-xs", isMobile && "py-2.5")}
-                                onClick={() => toast.success(`Arrived at ${stop.name}`)}
-                              >
-                                Mark as Arrived
-                              </Button>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className={cn("text-xs text-brand-500", isMobile && "py-2.5")}
-                                onClick={() => toast.success(`All passengers at ${stop.name} notified`)}
-                              >
-                                Notify Passengers
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <Button
+                  variant="outline"
+                  size={isMobile ? "lg" : "default"}
+                  className={cn("w-full justify-center gap-2 mt-4", isMobile && "py-6")}
+                  onClick={() => setCurrentView('stops')}
+                >
+                  <MapPin size={isMobile ? 20 : 16} />
+                  Show All Stops
+                </Button>
               </div>
               
-              {/* Navigation Map - Only visible after starting route */}
               {showNavigation && (
                 <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm mb-6">
                   <div className="flex items-center justify-between mb-4">
@@ -302,7 +274,6 @@ const DriverDashboard = () => {
               )}
             </div>
             
-            {/* Side Panel */}
             <div className="col-span-1">
               <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
                 <div className="flex border-b border-gray-100">
@@ -443,7 +414,6 @@ const DriverDashboard = () => {
                       </div>
                     </div>
                     
-                    {/* Maintenance Log */}
                     <div className="mb-4 p-3 rounded-lg border border-gray-100">
                       <h4 className="font-medium text-gray-900 mb-2">Maintenance Log</h4>
                       
@@ -593,9 +563,7 @@ const DriverDashboard = () => {
                 )}
               </div>
               
-              {/* Performance & Emergency */}
               <div className="mt-6 space-y-4">
-                {/* Performance */}
                 <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
                   <h4 className="font-medium text-gray-900 mb-2">Driver Performance</h4>
                   <div className="flex items-center justify-between mb-3">
@@ -614,7 +582,6 @@ const DriverDashboard = () => {
                   </div>
                 </div>
                 
-                {/* Emergency Services */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 rounded-xl border border-red-100 bg-red-50 text-center">
                     <div className="flex items-center justify-center mb-2">

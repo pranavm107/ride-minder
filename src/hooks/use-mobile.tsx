@@ -22,7 +22,7 @@ export function useIsMobile() {
     return () => window.removeEventListener("resize", handleResize)
   }, [])
 
-  return !!isMobile
+  return isMobile ?? false
 }
 
 export function useTouchDevice() {
@@ -38,4 +38,16 @@ export function useTouchDevice() {
   }, [])
   
   return isTouch
+}
+
+export function useDeviceInfo() {
+  const isMobile = useIsMobile()
+  const isTouch = useTouchDevice()
+  
+  return {
+    isMobile,
+    isTouch,
+    isDesktop: !isMobile,
+    isMobileOrTouch: isMobile || isTouch
+  }
 }
