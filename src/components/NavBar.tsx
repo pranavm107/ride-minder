@@ -7,7 +7,11 @@ import { Bus, User, MapPin, Menu, X } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useDeviceInfo } from '@/hooks/use-mobile';
 
-const NavBar = () => {
+interface NavBarProps {
+  userType?: 'student' | 'driver' | 'admin';
+}
+
+const NavBar = ({ userType }: NavBarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
