@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import { LucideIcon } from 'lucide-react';
 
 type DashboardCardProps = {
@@ -9,9 +10,14 @@ type DashboardCardProps = {
   icon?: React.ReactNode;
   trend?: number;
   trendLabel?: string;
+  description?: string;
   loading?: boolean;
   className?: string;
   onClick?: () => void;
+  actionText?: string;
+  actionLink?: string;
+  actionOnClick?: () => void;
+  actionVariant?: "default" | "destructive" | "outline" | "secondary" | "ghost" | "link" | null;
 };
 
 const DashboardCard = ({
@@ -20,9 +26,14 @@ const DashboardCard = ({
   icon,
   trend,
   trendLabel,
+  description,
   loading = false,
   className,
   onClick,
+  actionText,
+  actionLink,
+  actionOnClick,
+  actionVariant = "default"
 }: DashboardCardProps) => {
   const hasTrend = trend !== undefined;
   const isTrendPositive = hasTrend && trend > 0;
@@ -53,6 +64,10 @@ const DashboardCard = ({
         <div className="text-2xl font-bold text-gray-900 mb-2">{value}</div>
       )}
       
+      {description && (
+        <div className="text-sm text-gray-500 mb-3">{description}</div>
+      )}
+      
       {hasTrend && (
         <div className="flex items-center mt-2">
           <div 
@@ -81,6 +96,30 @@ const DashboardCard = ({
             {Math.abs(trend)}% {isTrendPositive ? 'up' : isTrendNegative ? 'down' : ''}
           </div>
           {trendLabel && <span className="text-xs text-gray-500 ml-2">{trendLabel}</span>}
+        </div>
+      )}
+      
+      {actionText && (
+        <div className="mt-4">
+          {actionLink ? (
+            <Button
+              variant={actionVariant || "default"}
+              size="sm"
+              className="w-full"
+              asChild
+            >
+              <a href={actionLink}>{actionText}</a>
+            </Button>
+          ) : (
+            <Button
+              variant={actionVariant || "default"}
+              size="sm"
+              className="w-full"
+              onClick={actionOnClick}
+            >
+              {actionText}
+            </Button>
+          )}
         </div>
       )}
     </div>

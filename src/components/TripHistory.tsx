@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Bus, Calendar, Clock, FileDown, Filter, ChevronDown, MapPin } from 'lucide-react';
@@ -23,9 +22,10 @@ import { toast } from 'sonner';
 
 type TripHistoryProps = {
   className?: string;
+  userType?: 'student' | 'driver' | 'admin';
 };
 
-const TripHistory = ({ className }: TripHistoryProps) => {
+const TripHistory = ({ className, userType = 'driver' }: TripHistoryProps) => {
   const [filterMonth, setFilterMonth] = useState<string>("all");
   const [filterRoute, setFilterRoute] = useState<string>("all");
   const [expandedTripId, setExpandedTripId] = useState<number | null>(null);

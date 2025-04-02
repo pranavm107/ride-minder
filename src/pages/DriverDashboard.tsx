@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
@@ -43,12 +42,10 @@ const DriverDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Navigation Bar */}
       <NavBar userType="driver" />
       
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 gap-6">
-          {/* Welcome Section */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <div className="flex justify-between items-center">
               <div>
@@ -121,7 +118,6 @@ const DriverDashboard = () => {
             </div>
           </div>
           
-          {/* Quick Actions */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <DashboardCard 
               title="Active Route"
@@ -161,15 +157,12 @@ const DriverDashboard = () => {
             />
           </div>
           
-          {/* Main Content Area */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Map View */}
             <div className="lg:col-span-2 bg-white rounded-xl p-4 shadow-sm border border-gray-100 overflow-hidden h-[400px] relative">
               <h2 className="text-lg font-medium mb-4">Live Route Tracking</h2>
-              <MapView height="340px" userType="driver" />
+              <MapView userType="driver" />
             </div>
             
-            {/* Stats and Info */}
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
               <h2 className="text-lg font-medium mb-4">Today's Statistics</h2>
               
@@ -206,13 +199,11 @@ const DriverDashboard = () => {
             </div>
           </div>
           
-          {/* Trip History */}
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <h2 className="text-lg font-medium mb-4">Recent Trip History</h2>
             <TripHistory userType="driver" />
           </div>
           
-          {/* Student Attendance */}
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-medium">Today's Student Attendance</h2>
@@ -269,7 +260,6 @@ const DriverDashboard = () => {
         </div>
       </main>
       
-      {/* Leave Application Dialog */}
       <Dialog open={showLeaveDialog !== null} onOpenChange={(open) => !open && setShowLeaveDialog(null)}>
         <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden">
           <DialogHeader className="px-6 pt-6">
@@ -287,7 +277,6 @@ const DriverDashboard = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Complaint Dialog */}
       <Dialog open={showComplaintDialog} onOpenChange={(open) => !open && setShowComplaintDialog(false)}>
         <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden">
           <DialogHeader className="px-6 pt-6">

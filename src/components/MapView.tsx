@@ -1,4 +1,3 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { Bus, MapPin, Navigation, Clock, MapIcon, Layers, Maximize2, ZoomIn, ZoomOut, User } from 'lucide-react';
@@ -10,9 +9,10 @@ type MapViewProps = {
   userType: 'student' | 'driver' | 'admin';
   mode?: 'preview' | 'navigation';
   fullView?: boolean;
+  height?: string;
 };
 
-const MapView = ({ className, isActive = true, userType, mode = 'preview', fullView = false }: MapViewProps) => {
+const MapView = ({ className, isActive = true, userType, mode = 'preview', fullView = false, height }: MapViewProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [loading, setLoading] = useState(true);
   const [mapType, setMapType] = useState<'standard' | 'satellite'>('standard');
@@ -30,7 +30,6 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
     { id: 5, name: 'Main Gate', x: 15, y: 25, status: 'upcoming', nextArrival: '09:30 AM', students: 3 },
   ]);
   
-  // Simulate map loading
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -39,7 +38,6 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
     return () => clearTimeout(timer);
   }, []);
   
-  // Simulate bus movement
   useEffect(() => {
     if (!isActive) return;
     
@@ -62,15 +60,12 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
   const renderNavigationMode = () => (
     <div className={cn(
       "relative w-full overflow-hidden",
-      fullView ? "h-[500px]" : "h-[350px]"
+      height ? `h-[${height}]` : (fullView ? "h-[500px]" : "h-[350px]")
     )}>
-      {/* Realistic navigation UI with Mapbox-style map */}
       <div className={cn(
         "absolute inset-0 bg-cover bg-center",
         mapBackground
       )}>
-        
-        {/* Navigation Instructions */}
         <div className="absolute top-4 left-1/2 transform -translate-x-1/2 bg-white p-3 rounded-lg shadow-lg flex items-center gap-2 w-5/6">
           <div className="h-8 w-8 rounded-full bg-brand-500 flex items-center justify-center text-white">
             <Navigation size={18} />
@@ -81,8 +76,6 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
           </div>
           <div className="text-xl font-bold text-brand-500">0.2mi</div>
         </div>
-        
-        {/* Next stop info */}
         <div className="absolute bottom-4 left-4 right-4 bg-white rounded-lg shadow-lg p-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -100,8 +93,6 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
             </div>
           </div>
         </div>
-        
-        {/* Map Controls */}
         <div className="absolute top-4 right-4">
           <div className="flex flex-col gap-2">
             <Button variant="outline" size="icon" className="bg-white shadow-md w-8 h-8">
@@ -129,7 +120,6 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
       'rounded-2xl overflow-hidden relative bg-white border border-gray-100 shadow-lg',
       className
     )}>
-      {/* Map Header */}
       <div className="p-4 border-b border-gray-100 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="h-8 w-8 bg-brand-100 rounded-full flex items-center justify-center text-brand-500">
@@ -150,7 +140,6 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
         </div>
       </div>
       
-      {/* Map Area */}
       {mode === 'navigation' ? (
         renderNavigationMode()
       ) : (
@@ -158,7 +147,7 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
           ref={mapRef} 
           className={cn(
             "relative w-full bg-brand-50 overflow-hidden",
-            fullView ? "h-[500px]" : "h-[350px]"
+            height ? `h-[${height}]` : (fullView ? "h-[500px]" : "h-[350px]")
           )}
         >
           {loading ? (
@@ -170,12 +159,10 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
             </div>
           ) : (
             <>
-              {/* Map with Mapbox-style background */}
               <div className={cn(
                 "absolute inset-0 bg-cover bg-center",
                 mapBackground
               )}>
-                {/* Bus icons */}
                 {buses.map((bus) => (
                   <div
                     key={bus.id}
@@ -185,7 +172,6 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
                     <div className="h-10 w-10 bg-white rounded-full shadow-md flex items-center justify-center border-2 border-brand-500 cursor-pointer relative -translate-x-1/2 -translate-y-1/2 group">
                       <Bus size={16} className="text-brand-500" />
                       
-                      {/* Route tooltip on hover */}
                       <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-36 p-2 bg-white rounded-lg shadow-lg text-xs opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200">
                         <div className="font-medium text-gray-900 mb-1">{bus.route}</div>
                         <div className="flex items-center justify-between">
@@ -203,7 +189,6 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
                   </div>
                 ))}
                 
-                {/* Stop markers */}
                 {stops.map((stop) => (
                   <div
                     key={stop.id}
@@ -225,7 +210,6 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
                         <span className="text-xs font-bold">{stop.id}</span>
                       </div>
                       
-                      {/* Stop tooltip */}
                       <div className="absolute -top-16 left-1/2 -translate-x-1/2 w-40 p-2 bg-white rounded-lg shadow-lg text-xs opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-200 z-10">
                         <div className="font-medium text-gray-900 mb-1">{stop.name}</div>
                         <div className="flex items-center justify-between">
@@ -250,7 +234,6 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
                   </div>
                 ))}
                 
-                {/* User location (for student view) */}
                 {userType === 'student' && (
                   <div 
                     className="absolute left-1/2 top-3/4 -translate-x-1/2 -translate-y-1/2"
@@ -265,7 +248,6 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
                 )}
               </div>
               
-              {/* Map controls */}
               <div className="absolute top-4 right-4">
                 <div className="flex flex-col gap-2">
                   <Button variant="outline" size="icon" className="bg-white shadow-md w-8 h-8">
@@ -289,7 +271,6 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
         </div>
       )}
       
-      {/* Map Controls */}
       <div className="p-4 border-t border-gray-100">
         <div className="grid grid-cols-2 gap-4">
           <button className="p-2 rounded-lg bg-brand-50 text-brand-600 text-sm font-medium hover:bg-brand-100 transition-colors flex items-center justify-center gap-1">
