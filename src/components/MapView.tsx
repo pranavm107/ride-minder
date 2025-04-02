@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Bus, MapPin, Navigation, Clock, MapIcon, Layers, Maximize2, ZoomIn, ZoomOut } from 'lucide-react';
+import { Bus, MapPin, Navigation, Clock, MapIcon, Layers, Maximize2, ZoomIn, ZoomOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 type MapViewProps = {

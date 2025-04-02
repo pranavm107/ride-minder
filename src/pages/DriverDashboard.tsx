@@ -34,7 +34,7 @@ const DriverDashboard = () => {
   const location = useLocation();
   
   const isHomePage = location.pathname === '/';
-
+  
   const students = [
     { id: 1, name: 'Emma Wilson', stop: 'Student Center', status: 'boarded', imageUrl: '' },
     { id: 2, name: 'Michael Chen', stop: 'Library', status: 'waiting', imageUrl: '' },
