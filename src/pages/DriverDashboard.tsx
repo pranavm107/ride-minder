@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
@@ -21,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 
 const DriverDashboard = () => {
+  // Update the type to include all three possible status values
   const [status, setStatus] = useState<'offline' | 'online' | 'on-route'>('online');
   const [currentTab, setCurrentTab] = useState<'passengers' | 'route' | 'communication'>('passengers');
   const [showNavigation, setShowNavigation] = useState(false);
@@ -449,7 +451,6 @@ const DriverDashboard = () => {
                           size="sm"
                           className="bg-brand-500 hover:bg-brand-600"
                           onClick={startRoute}
-                          disabled={status === 'on-route'}
                         >
                           {status === 'on-route' ? 'In Progress' : 'Start Route'}
                         </Button>
