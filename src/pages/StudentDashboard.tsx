@@ -1,15 +1,16 @@
-
 import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
 import { cn } from '@/lib/utils';
-import { Bus, Clock, MapPin, User, MessageSquare, Search, Calendar, Bell, AlertTriangle, FileText, CreditCard, SkipForward } from 'lucide-react';
+import { Bus, Clock, MapPin, User, MessageSquare, Search, Calendar, Bell, AlertTriangle, FileText, CreditCard, SkipForward, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent } from '@/components/ui/card';
 import ComplaintBox from '@/components/ComplaintBox';
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +29,12 @@ const StudentDashboard = () => {
   const [currentOfferIndex, setCurrentOfferIndex] = useState(0);
   const [currentView, setCurrentView] = useState<'dashboard' | 'stops' | 'complaints'>('dashboard');
   const [showComplaintDialog, setShowComplaintDialog] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [paymentAmount, setPaymentAmount] = useState("50.00");
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiryDate, setExpiryDate] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [processing, setProcessing] = useState(false);
   
   const isMobile = useIsMobile();
 
@@ -202,6 +209,65 @@ const StudentDashboard = () => {
     toast.success("Ride customization request sent", {
       description: "Your request will be reviewed by an administrator shortly.",
     });
+  };
+
+  const handlePayment = () => {
+    if (!cardNumber || !expiryDate || !cvv) {
+      toast.error("Please fill in all payment fields");
+      return;
+    }
+
+    setProcessing(true);
+
+    // Simulate payment processing
+    setTimeout(() => {
+      setProcessing(false);
+      setShowPaymentDialog(false);
+      
+      // Reset form fields
+      setCardNumber("");
+      setExpiryDate("");
+      setCvv("");
+      
+      toast.success("Payment successful", {
+        description: `Your payment of $${paymentAmount} has been processed. Receipt sent to your email.`,
+      });
+    }, 2000);
+  };
+
+  const formatCardNumber = (value: string) => {
+    const val = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
+    const matches = val.match(/\d{4,16}/g);
+    const match = (matches && matches[0]) || "";
+    const parts = [];
+
+    for (let i = 0; i < match.length; i += 4) {
+      parts.push(match.substring(i, i + 4));
+    }
+
+    if (parts.length) {
+      return parts.join(" ");
+    } else {
+      return value;
+    }
+  };
+
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCardNumber(formatCardNumber(value));
+  };
+
+  const formatExpiryDate = (value: string) => {
+    const val = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
+    if (val.length > 2) {
+      return `${val.substring(0, 2)}/${val.substring(2, 4)}`;
+    }
+    return val;
+  };
+
+  const handleExpiryDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setExpiryDate(formatExpiryDate(value));
   };
 
   if (currentView === 'stops') {
@@ -819,6 +885,99 @@ const StudentDashboard = () => {
           <DialogFooter className="pt-2">
             <Button variant="outline" onClick={() => setShowComplaintDialog(false)}>
               Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Make a Payment</DialogTitle>
+            <DialogDescription>
+              Make a secure payment for your bus service.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-3">
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="payment-amount">Payment Amount</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
+                <Input
+                  id="payment-amount"
+                  value={paymentAmount}
+                  onChange={(e) => setPaymentAmount(e.target.value)}
+                  className="pl-8"
+                />
+              </div>
+            </div>
+            
+            <div className="flex flex-col space-y-1.5">
+              <Label htmlFor="card-number">Card Number</Label>
+              <Input
+                id="card-number"
+                placeholder="1234 5678 9012 3456"
+                value={cardNumber}
+                onChange={handleCardNumberChange}
+                maxLength={19}
+              />
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="expiry">Expiry Date</Label>
+                <Input
+                  id="expiry"
+                  placeholder="MM/YY"
+                  value={expiryDate}
+                  onChange={handleExpiryDateChange}
+                  maxLength={5}
+                />
+              </div>
+              
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="cvv">CVV</Label>
+                <Input
+                  id="cvv"
+                  placeholder="123"
+                  value={cvv}
+                  onChange={(e) => setCvv(e.target.value)}
+                  maxLength={3}
+                  type="password"
+                />
+              </div>
+            </div>
+            
+            <div className="rounded-md bg-gray-50 p-3 text-sm text-gray-700">
+              <p className="flex items-center">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 mr-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="m9 12 2 2 4-4"/>
+                    <path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/>
+                  </svg>
+                </span>
+                Your payment information is encrypted and secure.
+              </p>
+            </div>
+          </div>
+          
+          <DialogFooter className="flex space-x-2 pt-2">
+            <Button variant="outline" onClick={() => setShowPaymentDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handlePayment} disabled={processing}>
+              {processing ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Processing...
+                </>
+              ) : (
+                "Pay $" + paymentAmount
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>
