@@ -104,7 +104,7 @@ const DriverDashboard = () => {
             
             <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
               <h2 className="text-2xl font-semibold mb-6">Route Stops</h2>
-              <MapView userType="driver" />
+              <MapView userType="driver" fullView={true} />
             </div>
             
             <StopsPage />
@@ -203,7 +203,7 @@ const DriverDashboard = () => {
                         return;
                       }
                       const newStatus = status === 'offline' ? 'online' : 'offline';
-                      setStatus(newStatus);
+                      setStatus(newStatus as DriverStatus);
                       toast.success(`You are now ${newStatus}`);
                       if (newStatus === 'offline') {
                         setShowNavigation(false);
@@ -227,7 +227,7 @@ const DriverDashboard = () => {
                         return;
                       }
                       const newStatus = status === 'offline' ? 'online' : 'offline';
-                      setStatus(newStatus);
+                      setStatus(newStatus as DriverStatus);
                       toast.success(`You are now ${newStatus}`);
                       if (newStatus === 'offline') {
                         setShowNavigation(false);

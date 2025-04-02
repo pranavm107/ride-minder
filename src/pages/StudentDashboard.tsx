@@ -8,6 +8,15 @@ import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Card, CardContent } from '@/components/ui/card';
+import ComplaintBox from '@/components/ComplaintBox';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogHeader,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'history'>('upcoming');
@@ -16,6 +25,9 @@ const StudentDashboard = () => {
   const [skipMorningRide, setSkipMorningRide] = useState(true);
   const [skipEveningRide, setSkipEveningRide] = useState(true);
   const [currentOfferIndex, setCurrentOfferIndex] = useState(0);
+  const [currentView, setCurrentView] = useState<'dashboard' | 'stops' | 'complaints'>('dashboard');
+  const [showComplaintDialog, setShowComplaintDialog] = useState(false);
+  
   const isMobile = useIsMobile();
 
   const specialOffers = [
@@ -189,6 +201,127 @@ const StudentDashboard = () => {
       description: "Your request will be reviewed by an administrator shortly.",
     });
   };
+
+  if (currentView === 'stops') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <NavBar />
+        
+        <main className="pt-20 pb-12 px-4 md:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-4">
+              <Button 
+                variant="ghost" 
+                size={isMobile ? "lg" : "default"}
+                className="gap-2"
+                onClick={() => setCurrentView('dashboard')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-1">
+                  <path d="m12 19-7-7 7-7"/>
+                  <path d="M19 12H5"/>
+                </svg>
+                Back to Dashboard
+              </Button>
+            </div>
+            
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
+              <h2 className="text-2xl font-semibold mb-6">View Bus Stops</h2>
+              <MapView userType="student" fullView={true} />
+            </div>
+            
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
+              <h3 className="text-lg font-semibold mb-4">Upcoming Stops</h3>
+              
+              <div className="space-y-4">
+                {[
+                  { name: 'Student Center', time: '08:15 AM', status: 'completed' },
+                  { name: 'Library', time: '08:30 AM', status: 'current', eta: '2 min' },
+                  { name: 'Engineering Building', time: '08:45 AM', status: 'upcoming' },
+                  { name: 'Science Building', time: '09:00 AM', status: 'upcoming' },
+                  { name: 'Main Gate', time: '09:15 AM', status: 'upcoming' }
+                ].map((stop, index) => (
+                  <div 
+                    key={index} 
+                    className={cn(
+                      "p-4 border rounded-lg flex items-center justify-between",
+                      stop.status === 'completed' && "border-gray-200 bg-gray-50",
+                      stop.status === 'current' && "border-brand-200 bg-brand-50",
+                      stop.status === 'upcoming' && "border-blue-100 bg-white"
+                    )}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={cn(
+                        "h-10 w-10 rounded-full flex items-center justify-center",
+                        stop.status === 'completed' && "bg-gray-200 text-gray-600",
+                        stop.status === 'current' && "bg-brand-100 text-brand-600",
+                        stop.status === 'upcoming' && "bg-blue-100 text-blue-600"
+                      )}>
+                        <MapPin size={20} />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">{stop.name}</h4>
+                        <p className="text-sm text-gray-600">{stop.time}</p>
+                      </div>
+                    </div>
+                    <div>
+                      {stop.status === 'completed' && (
+                        <span className="px-3 py-1 rounded-full text-xs bg-gray-200 text-gray-700">
+                          Completed
+                        </span>
+                      )}
+                      {stop.status === 'current' && (
+                        <span className="px-3 py-1 rounded-full text-xs bg-brand-100 text-brand-700 flex items-center gap-1">
+                          <span className="h-2 w-2 rounded-full bg-brand-500 animate-pulse"></span>
+                          Arriving in {stop.eta}
+                        </span>
+                      )}
+                      {stop.status === 'upcoming' && (
+                        <span className="px-3 py-1 rounded-full text-xs bg-blue-100 text-blue-700">
+                          Upcoming
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+  
+  if (currentView === 'complaints') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <NavBar />
+        
+        <main className="pt-20 pb-12 px-4 md:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-4">
+              <Button 
+                variant="ghost" 
+                size={isMobile ? "lg" : "default"}
+                className="gap-2"
+                onClick={() => setCurrentView('dashboard')}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5 mr-1">
+                  <path d="m12 19-7-7 7-7"/>
+                  <path d="M19 12H5"/>
+                </svg>
+                Back to Dashboard
+              </Button>
+            </div>
+            
+            <ComplaintBox 
+              userType="student" 
+              onSuccess={() => setCurrentView('dashboard')} 
+            />
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -373,6 +506,19 @@ const StudentDashboard = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="font-semibold text-gray-900">Live Bus Tracking</h3>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => setCurrentView('stops')}
+                  className="text-sm"
+                >
+                  <MapPin size={14} className="mr-1.5" />
+                  Show All Stops
+                </Button>
+              </div>
+              
               <MapView userType="student" />
               
               <div className="bg-white rounded-xl p-6 mt-6 border border-gray-100 shadow-sm">
@@ -443,7 +589,7 @@ const StudentDashboard = () => {
                 <TabsList className="w-full grid grid-cols-3">
                   <TabsTrigger value="rides">My Rides</TabsTrigger>
                   <TabsTrigger value="notifications">Notifications</TabsTrigger>
-                  <TabsTrigger value="complaints">Feedback</TabsTrigger>
+                  <TabsTrigger value="feedback">Feedback</TabsTrigger>
                 </TabsList>
                 
                 <TabsContent value="rides" className="p-4">
@@ -574,43 +720,43 @@ const StudentDashboard = () => {
                   </div>
                 </TabsContent>
                 
-                <TabsContent value="complaints" className="p-4">
+                <TabsContent value="feedback" className="p-4">
                   <div className="space-y-4">
-                    <h4 className="font-medium text-gray-900">Submit a Complaint or Feedback</h4>
-                    <div>
-                      <label className="block text-sm text-gray-700 mb-1">Type</label>
-                      <select className="w-full px-3 py-2 text-sm rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent">
-                        <option>Select complaint type...</option>
-                        <option>Bus Condition</option>
-                        <option>Driver Behavior</option>
-                        <option>Punctuality Issue</option>
-                        <option>Overcrowding</option>
-                        <option>Other</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm text-gray-700 mb-1">Description</label>
-                      <textarea 
-                        rows={3}
-                        className="w-full px-3 py-2 text-sm rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-                        placeholder="Describe your issue in detail..."
-                      ></textarea>
-                    </div>
-                    <div>
-                      <label className="block text-sm text-gray-700 mb-1">Attach Photo (Optional)</label>
-                      <div className="border border-dashed border-gray-300 rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 transition-colors">
-                        <div className="flex flex-col items-center">
-                          <FileText size={24} className="text-gray-400 mb-2" />
-                          <span className="text-sm text-gray-500">Click to upload</span>
+                    <h4 className="font-medium text-gray-900">Submit Feedback or Complaint</h4>
+                    <p className="text-sm text-gray-600">
+                      Report any issues with your bus service or provide feedback to help us improve.
+                    </p>
+                    <div className="space-y-4">
+                      <Button 
+                        className="w-full"
+                        onClick={() => setCurrentView('complaints')}
+                      >
+                        <AlertTriangle size={16} className="mr-2" />
+                        Submit New Complaint
+                      </Button>
+                      
+                      <div>
+                        <h5 className="text-sm font-medium text-gray-700 mb-2">Previous Complaints</h5>
+                        <div className="space-y-2">
+                          <div className="p-3 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                            <div className="flex justify-between items-start">
+                              <h6 className="font-medium text-gray-900">Bus Delay Issue</h6>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700">Pending</span>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1 mb-2">Bus arrived 20 minutes late on Monday morning...</p>
+                            <p className="text-xs text-gray-500">Submitted on: 10/12/2023</p>
+                          </div>
+                          <div className="p-3 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+                            <div className="flex justify-between items-start">
+                              <h6 className="font-medium text-gray-900">AC Not Working</h6>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">Resolved</span>
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1 mb-2">The air conditioning in bus #42 was not working...</p>
+                            <p className="text-xs text-gray-500">Submitted on: 09/28/2023</p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                    <Button 
-                      className="w-full"
-                      onClick={handleSubmitComplaint}
-                    >
-                      Submit Complaint
-                    </Button>
                   </div>
                 </TabsContent>
               </Tabs>
@@ -653,6 +799,28 @@ const StudentDashboard = () => {
           </div>
         </div>
       </main>
+      
+      <Dialog open={showComplaintDialog} onOpenChange={setShowComplaintDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Submit a Complaint</DialogTitle>
+            <DialogDescription>
+              Report any issues with your bus service or provide feedback to help us improve.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ComplaintBox 
+            userType="student"
+            onSuccess={() => setShowComplaintDialog(false)}
+          />
+          
+          <DialogFooter className="pt-2">
+            <Button variant="outline" onClick={() => setShowComplaintDialog(false)}>
+              Cancel
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
