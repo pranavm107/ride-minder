@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
@@ -194,6 +195,7 @@ const StudentDashboard = () => {
     toast.success("Complaint submitted successfully", {
       description: "A staff member will review your submission within 24 hours.",
     });
+    setShowComplaintDialog(false);
   };
 
   const handleCustomizeRide = () => {
@@ -325,7 +327,7 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavBar />
+      <NavBar userType="student" />
       
       <main className="pt-20 pb-12 px-4 md:px-8">
         <div className="max-w-7xl mx-auto">
@@ -729,7 +731,7 @@ const StudentDashboard = () => {
                     <div className="space-y-4">
                       <Button 
                         className="w-full"
-                        onClick={() => setCurrentView('complaints')}
+                        onClick={() => setShowComplaintDialog(true)}
                       >
                         <AlertTriangle size={16} className="mr-2" />
                         Submit New Complaint
