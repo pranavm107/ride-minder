@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
@@ -457,6 +458,8 @@ const DriverDashboard = () => {
                     </div>
                   </div>
                   
+                  <MapView userType="driver" />
+                  
                   <Button
                     variant="outline"
                     size="default"
@@ -773,4 +776,83 @@ const DriverDashboard = () => {
                               variant="ghost" 
                               size="sm" 
                               className="text-xs text-brand-500 h-7"
-                              onClick
+                              onClick={() => {
+                                toast.success("Reply sent to Emma Wilson");
+                              }}
+                            >
+                              Reply
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div className="p-3 rounded-lg border border-gray-100 bg-gray-50">
+                          <div className="flex justify-between mb-1">
+                            <span className="font-medium text-gray-900">System Notification</span>
+                            <span className="text-xs text-gray-500">7:45 AM</span>
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            Route <b>North Campus</b> assigned to you for today.
+                          </p>
+                        </div>
+                        
+                        <div className="p-3 rounded-lg border border-gray-100">
+                          <div className="flex justify-between mb-1">
+                            <span className="font-medium text-gray-900">Michael Chen</span>
+                            <span className="text-xs text-gray-500">Yesterday</span>
+                          </div>
+                          <p className="text-sm text-gray-600 mb-2">
+                            Hi, I might be a few minutes late to the stop tomorrow.
+                          </p>
+                          <div className="flex justify-end">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-xs text-brand-500 h-7"
+                              onClick={() => {
+                                toast.success("Reply sent to Michael Chen");
+                              }}
+                            >
+                              Reply
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          <Dialog open={showLeaveDialog !== null} onOpenChange={() => setShowLeaveDialog(null)}>
+            <DialogContent className="sm:max-w-md">
+              <DialogHeader>
+                <DialogTitle>
+                  {showLeaveDialog === 'regular' 
+                    ? 'Apply for Leave' 
+                    : 'Emergency Leave Request'
+                  }
+                </DialogTitle>
+                <DialogDescription>
+                  {showLeaveDialog === 'regular'
+                    ? 'Submit your leave application for approval.'
+                    : 'Request immediate emergency leave.'
+                  }
+                </DialogDescription>
+              </DialogHeader>
+              <LeaveApplication 
+                type={showLeaveDialog === 'regular' ? 'regular' : 'emergency'} 
+                onSubmit={() => {
+                  toast.success('Leave application submitted successfully');
+                  setShowLeaveDialog(null);
+                }}
+              />
+            </DialogContent>
+          </Dialog>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default DriverDashboard;
