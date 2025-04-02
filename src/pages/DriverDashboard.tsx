@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
@@ -841,9 +840,8 @@ const DriverDashboard = () => {
                 </DialogDescription>
               </DialogHeader>
               <LeaveApplication 
-                type={showLeaveDialog === 'regular' ? 'regular' : 'emergency'} 
-                onSubmit={() => {
-                  toast.success('Leave application submitted successfully');
+                leaveType={showLeaveDialog === 'regular' ? 'regular' : 'emergency'} 
+                onClose={() => {
                   setShowLeaveDialog(null);
                 }}
               />
