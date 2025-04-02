@@ -3,18 +3,30 @@ import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
 import DashboardCard from '@/components/DashboardCard';
 import { cn } from '@/lib/utils';
-import { Bus, Clock, MapPin, User, MessageSquare, Search, Camera, Phone, Bell, Settings, AlertTriangle, ArrowLeft } from 'lucide-react';
+import { Bus, Clock, MapPin, User, MessageSquare, Search, Camera, Phone, Bell, Settings, AlertTriangle, ArrowLeft, Calendar, FileText, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useIsMobile, useDeviceInfo } from '@/hooks/use-mobile';
 import StopsPage from '@/components/StopsPage';
 import { useNavigate, useLocation } from 'react-router-dom';
+import TripHistory from '@/components/TripHistory';
+import LeaveApplication from '@/components/LeaveApplication';
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+  DialogHeader,
+  DialogFooter,
+} from "@/components/ui/dialog";
 
 const DriverDashboard = () => {
   const [status, setStatus] = useState<'offline' | 'online' | 'on-route'>('online');
   const [currentTab, setCurrentTab] = useState<'passengers' | 'route' | 'communication'>('passengers');
   const [showNavigation, setShowNavigation] = useState(false);
-  const [currentView, setCurrentView] = useState<'dashboard' | 'stops' | 'messages'>('dashboard');
+  const [currentView, setCurrentView] = useState<'dashboard' | 'stops' | 'messages' | 'trip-history'>('dashboard');
+  const [showLeaveDialog, setShowLeaveDialog] = useState<'regular' | 'emergency' | null>(null);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   
   const { isMobile } = useDeviceInfo();
   const navigate = useNavigate();
@@ -64,7 +76,11 @@ const DriverDashboard = () => {
   };
 
   const handleGoBack = () => {
-    navigate('/');
+    if (currentView !== 'dashboard') {
+      setCurrentView('dashboard');
+    } else {
+      navigate('/');
+    }
   };
 
   if (currentView === 'stops') {
@@ -85,7 +101,37 @@ const DriverDashboard = () => {
               </Button>
             </div>
             
+            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 mb-6">
+              <h2 className="text-2xl font-semibold mb-6">Route Stops</h2>
+              <MapView userType="driver" />
+            </div>
+            
             <StopsPage />
+          </div>
+        </main>
+      </div>
+    );
+  }
+  
+  if (currentView === 'trip-history') {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <NavBar />
+        <main className="pt-20 pb-12 px-4 md:px-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="mb-4">
+              <Button 
+                variant="ghost" 
+                size={isMobile ? "lg" : "default"}
+                className="gap-2"
+                onClick={() => setCurrentView('dashboard')}
+              >
+                <ArrowLeft size={isMobile ? 20 : 16} className="mr-1" />
+                Back to Dashboard
+              </Button>
+            </div>
+            
+            <TripHistory />
           </div>
         </main>
       </div>
@@ -101,7 +147,7 @@ const DriverDashboard = () => {
           <div className="mb-8 mt-4">
             <div className="flex flex-col md:flex-row md:items-center md:justify-between">
               <div className="flex items-center">
-                {!isHomePage && isMobile && (
+                {!isHomePage && (
                   <Button 
                     variant="ghost" 
                     size="sm"
@@ -133,28 +179,102 @@ const DriverDashboard = () => {
                   {status === 'offline' ? 'Offline' : status === 'online' ? 'Online' : 'On Route'}
                 </span>
                 
-                <Button 
-                  variant={status === 'offline' ? 'default' : 'outline'} 
-                  className={cn(
-                    status === 'offline' ? 'bg-brand-500 hover:bg-brand-600' : '',
-                    isMobile && 'mobile-action-button'
-                  )}
-                  onClick={() => {
-                    if (status === 'on-route') {
-                      return;
-                    }
-                    const newStatus = status === 'offline' ? 'online' : 'offline';
-                    setStatus(newStatus);
-                    toast.success(`You are now ${newStatus}`);
-                    if (newStatus === 'offline') {
-                      setShowNavigation(false);
-                    }
-                  }}
-                >
-                  {status === 'offline' ? 'Go Online' : 'Go Offline'}
-                </Button>
+                {isMobile ? (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowMobileMenu(!showMobileMenu)}
+                  >
+                    {showMobileMenu ? (
+                      <X size={18} />
+                    ) : (
+                      <Menu size={18} />
+                    )}
+                  </Button>
+                ) : (
+                  <Button 
+                    variant={status === 'offline' ? 'default' : 'outline'} 
+                    className={cn(
+                      status === 'offline' ? 'bg-brand-500 hover:bg-brand-600' : ''
+                    )}
+                    onClick={() => {
+                      if (status === 'on-route') {
+                        return;
+                      }
+                      const newStatus = status === 'offline' ? 'online' : 'offline';
+                      setStatus(newStatus);
+                      toast.success(`You are now ${newStatus}`);
+                      if (newStatus === 'offline') {
+                        setShowNavigation(false);
+                      }
+                    }}
+                  >
+                    {status === 'offline' ? 'Go Online' : 'Go Offline'}
+                  </Button>
+                )}
               </div>
             </div>
+            
+            {isMobile && showMobileMenu && (
+              <div className="mt-4 p-4 bg-white rounded-xl border border-gray-100 shadow-sm">
+                <div className="space-y-2">
+                  <Button 
+                    variant={status === 'offline' ? 'default' : 'outline'} 
+                    className="w-full justify-start"
+                    onClick={() => {
+                      if (status === 'on-route') {
+                        return;
+                      }
+                      const newStatus = status === 'offline' ? 'online' : 'offline';
+                      setStatus(newStatus);
+                      toast.success(`You are now ${newStatus}`);
+                      if (newStatus === 'offline') {
+                        setShowNavigation(false);
+                      }
+                      setShowMobileMenu(false);
+                    }}
+                  >
+                    {status === 'offline' ? 'Go Online' : 'Go Offline'}
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      setCurrentView('trip-history');
+                      setShowMobileMenu(false);
+                    }}
+                  >
+                    <Calendar size={16} className="mr-2" />
+                    Trip History
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={() => {
+                      setShowLeaveDialog('regular');
+                      setShowMobileMenu(false);
+                    }}
+                  >
+                    <FileText size={16} className="mr-2" />
+                    Apply for Leave
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-red-500 hover:text-red-600"
+                    onClick={() => {
+                      setShowLeaveDialog('emergency');
+                      setShowMobileMenu(false);
+                    }}
+                  >
+                    <AlertTriangle size={16} className="mr-2" />
+                    Emergency Leave
+                  </Button>
+                </div>
+              </div>
+            )}
           </div>
           
           {isMobile ? (
@@ -209,31 +329,6 @@ const DriverDashboard = () => {
                 </div>
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
-                <DashboardCard
-                  title="Current Route"
-                  value="North Campus"
-                  icon={<Bus size={18} />}
-                />
-                <DashboardCard
-                  title="Passengers"
-                  value="23/30"
-                  icon={<User size={18} />}
-                />
-                <DashboardCard
-                  title="Next Stop"
-                  value="Library (3m)"
-                  icon={<MapPin size={18} />}
-                />
-                <DashboardCard
-                  title="Progress"
-                  value="2/5 Stops"
-                  trend={40}
-                  trendLabel="complete"
-                  icon={<Clock size={18} />}
-                />
-              </div>
-              
               {showNavigation && (
                 <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm mb-6">
                   <div className="flex items-center justify-between mb-4">
@@ -265,41 +360,64 @@ const DriverDashboard = () => {
                     </div>
                   </div>
                   
-                  <MapView userType="driver" />
-                  
-                  <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <div className="flex items-center gap-2">
-                      <div className="h-8 w-8 rounded-full bg-brand-100 flex items-center justify-center">
-                        <MapPin size={16} className="text-brand-500" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">Next: Library</p>
-                        <p className="text-xs text-gray-500">3 min (0.8 miles)</p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center gap-3">
-                      <Button 
-                        variant="outline"
-                        size="default"
-                        onClick={delayRoute}
-                        className="text-xs flex items-center gap-1 flex-1"
-                      >
-                        <AlertTriangle size={14} />
-                        Report Delay
-                      </Button>
-                      <Button
-                        variant="default"
-                        size="default"
-                        className="bg-brand-500 hover:bg-brand-600 text-xs flex-1"
-                        onClick={() => toast.success("Turn-by-turn directions started")}
-                      >
-                        Start Navigation
-                      </Button>
-                    </div>
-                  </div>
+                  <MapView userType="driver" mode="navigation" />
                 </div>
               )}
+              
+              <div className="grid grid-cols-2 gap-4">
+                <DashboardCard
+                  title="Current Route"
+                  value="North Campus"
+                  icon={<Bus size={18} />}
+                />
+                <DashboardCard
+                  title="Passengers"
+                  value="23/30"
+                  icon={<User size={18} />}
+                />
+                <DashboardCard
+                  title="Next Stop"
+                  value="Library (3m)"
+                  icon={<MapPin size={18} />}
+                />
+                <DashboardCard
+                  title="Progress"
+                  value="2/5 Stops"
+                  trend={40}
+                  trendLabel="complete"
+                  icon={<Clock size={18} />}
+                />
+              </div>
+              
+              <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                <h3 className="font-semibold text-gray-900 mb-3">Quick Actions</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    variant="outline"
+                    className="w-full py-6 flex flex-col gap-2 h-auto"
+                    onClick={() => setCurrentView('trip-history')}
+                  >
+                    <Calendar size={20} className="text-brand-500" />
+                    <span>Trip History</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full py-6 flex flex-col gap-2 h-auto"
+                    onClick={() => setShowLeaveDialog('regular')}
+                  >
+                    <FileText size={20} className="text-brand-500" />
+                    <span>Apply for Leave</span>
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full py-6 flex flex-col gap-2 h-auto col-span-2"
+                    onClick={() => setShowLeaveDialog('emergency')}
+                  >
+                    <AlertTriangle size={20} className="text-red-500" />
+                    <span className="text-red-500">Emergency Leave</span>
+                  </Button>
+                </div>
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -311,34 +429,41 @@ const DriverDashboard = () => {
                     <div className="flex flex-col sm:flex-row items-center gap-2">
                       <Button 
                         variant="outline" 
-                        size={isMobile ? "lg" : "sm"}
+                        size="sm"
                         onClick={delayRoute}
-                        className={cn(isMobile && "w-full mobile-action-button")}
                       >
                         Delay 10 min
                       </Button>
-                      <Button 
-                        variant="default" 
-                        size={isMobile ? "lg" : "sm"}
-                        className={cn(
-                          "bg-brand-500 hover:bg-brand-600",
-                          isMobile && "w-full mobile-action-button"
-                        )}
-                        onClick={startRoute}
-                        disabled={status === 'on-route'}
-                      >
-                        {status === 'on-route' ? 'In Progress' : 'Start Route'}
-                      </Button>
+                      {status === 'on-route' ? (
+                        <Button 
+                          variant="default" 
+                          size="sm"
+                          className="bg-red-500 hover:bg-red-600"
+                          onClick={endRoute}
+                        >
+                          End Trip
+                        </Button>
+                      ) : (
+                        <Button 
+                          variant="default" 
+                          size="sm"
+                          className="bg-brand-500 hover:bg-brand-600"
+                          onClick={startRoute}
+                          disabled={status === 'on-route'}
+                        >
+                          {status === 'on-route' ? 'In Progress' : 'Start Route'}
+                        </Button>
+                      )}
                     </div>
                   </div>
                   
                   <Button
                     variant="outline"
-                    size={isMobile ? "lg" : "default"}
-                    className={cn("w-full justify-center gap-2 mt-4", isMobile && "py-6")}
+                    size="default"
+                    className="w-full justify-center gap-2 mt-4"
                     onClick={() => setCurrentView('stops')}
                   >
-                    <MapPin size={isMobile ? 20 : 16} />
+                    <MapPin size={16} />
                     Show All Stops
                   </Button>
                 </div>
@@ -353,7 +478,7 @@ const DriverDashboard = () => {
                           variant="outline" 
                           size="sm"
                           onClick={() => toast.info("Voice navigation activated")}
-                          className={cn("flex items-center gap-1", isMobile && "py-2.5")}
+                          className="flex items-center gap-1"
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
@@ -367,51 +492,51 @@ const DriverDashboard = () => {
                           variant="outline" 
                           size="sm"
                           onClick={() => toast.info("Showing traffic information")}
-                          className={isMobile ? "py-2.5" : ""}
                         >
                           Traffic
                         </Button>
                       </div>
                     </div>
                     
-                    <MapView userType="driver" />
-                    
-                    <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                      <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-full bg-brand-100 flex items-center justify-center">
-                          <MapPin size={16} className="text-brand-500" />
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-gray-900">Next: Library</p>
-                          <p className="text-xs text-gray-500">3 min (0.8 miles)</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center gap-3">
-                        <Button 
-                          variant="outline"
-                          size={isMobile ? "default" : "sm"}
-                          onClick={delayRoute}
-                          className={cn("text-xs flex items-center gap-1", isMobile && "flex-1")}
-                        >
-                          <AlertTriangle size={14} />
-                          Report Delay
-                        </Button>
-                        <Button
-                          variant="default"
-                          size={isMobile ? "default" : "sm"}
-                          className={cn(
-                            "bg-brand-500 hover:bg-brand-600 text-xs",
-                            isMobile && "flex-1"
-                          )}
-                          onClick={() => toast.success("Turn-by-turn directions started")}
-                        >
-                          Start Navigation
-                        </Button>
-                      </div>
-                    </div>
+                    <MapView userType="driver" mode="navigation" />
                   </div>
                 )}
+                
+                <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm mb-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                      <Calendar size={16} className="text-brand-500" />
+                      Trip History
+                    </h3>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setCurrentView('trip-history')}
+                    >
+                      View All
+                    </Button>
+                  </div>
+                  
+                  <div className="space-y-3">
+                    {[1, 2, 3].map((index) => (
+                      <div key={index} className="p-3 border border-gray-100 rounded-lg flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-brand-100 flex items-center justify-center">
+                            <Bus size={16} className="text-brand-500" />
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium">North Campus Express</div>
+                            <div className="text-xs text-gray-500">Sep {15 - index}, 2023 • 8:00 AM - 10:30 AM</div>
+                          </div>
+                        </div>
+                        <div className="text-xs bg-gray-100 px-2 py-1 rounded-full">
+                          {28 - index} students
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
               
               <div className="col-span-1">
@@ -767,6 +892,31 @@ const DriverDashboard = () => {
           )}
         </div>
       </main>
+      
+      <Dialog
+        open={showLeaveDialog !== null}
+        onOpenChange={(open) => {
+          if (!open) setShowLeaveDialog(null);
+        }}
+      >
+        <DialogContent className="p-0 max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="sr-only">
+              {showLeaveDialog === 'emergency' ? 'Emergency Leave Application' : 'Leave Application'}
+            </DialogTitle>
+            <DialogDescription className="sr-only">
+              Please fill out the form to apply for leave
+            </DialogDescription>
+          </DialogHeader>
+          
+          {showLeaveDialog && (
+            <LeaveApplication 
+              leaveType={showLeaveDialog} 
+              onClose={() => setShowLeaveDialog(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
