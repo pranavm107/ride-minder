@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
@@ -22,8 +21,8 @@ import {
 } from "@/components/ui/dialog";
 
 const DriverDashboard = () => {
-  // Update the type to include all three possible status values
-  const [status, setStatus] = useState<'offline' | 'online' | 'on-route'>('online');
+  type DriverStatus = 'offline' | 'online' | 'on-route';
+  const [status, setStatus] = useState<DriverStatus>('online');
   const [currentTab, setCurrentTab] = useState<'passengers' | 'route' | 'communication'>('passengers');
   const [showNavigation, setShowNavigation] = useState(false);
   const [currentView, setCurrentView] = useState<'dashboard' | 'stops' | 'messages' | 'trip-history'>('dashboard');
