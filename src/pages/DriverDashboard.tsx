@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
@@ -7,12 +6,15 @@ import TripHistory from '@/components/TripHistory';
 import LeaveApplication from '@/components/LeaveApplication';
 import ComplaintBox from '@/components/ComplaintBox';
 import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+import StopsPage from '@/components/StopsPage';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Clock, Calendar, Menu, MapPin, Bell, FileText, Home, MapIcon, BarChart3, Settings, AlertTriangle, CheckCircle2, MoreVertical } from 'lucide-react';
+import { Clock, Calendar, Menu, MapPin, Bell, FileText, Home, MapIcon, BarChart3, Settings, AlertTriangle, CheckCircle2, MoreVertical, AlertCircle, Clock5 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useNavigate } from 'react-router-dom';
 
 const studentAttendance = [
   { id: '2023001', name: 'Alice Johnson', grade: '10th', stop: 'Main Street', morningStatus: 'Present', afternoonStatus: 'Present' },
@@ -27,9 +29,12 @@ const DriverDashboard = () => {
   const [showLeaveDialog, setShowLeaveDialog] = useState<'regular' | 'emergency' | null>(null);
   const [showComplaintDialog, setShowComplaintDialog] = useState<boolean>(false);
   const [showStartAnimation, setShowStartAnimation] = useState<boolean>(false);
+  const [showEndAnimation, setShowEndAnimation] = useState<boolean>(false);
   const [showFullMap, setShowFullMap] = useState<boolean>(false);
+  const [showStopsPage, setShowStopsPage] = useState<boolean>(false);
   const mapRef = useRef<HTMLDivElement>(null);
-  const { toast } = useToast();
+  const { toast: uiToast } = useToast();
+  const navigate = useNavigate();
   
   // Scroll to map when trip starts
   useEffect(() => {
@@ -45,21 +50,60 @@ const DriverDashboard = () => {
       setCurrentTripStatus('active');
       setShowFullMap(true);
       setShowStartAnimation(false);
-      toast({
+      uiToast({
         title: "Trip Started!",
         description: "You've started your trip on Route #248.",
       });
-    }, 2000);
+    }, 3000);
   };
   
   const handleEndTrip = () => {
-    setCurrentTripStatus('inactive');
-    setShowFullMap(false);
-    toast({
-      title: "Trip Ended!",
-      description: "You've completed your trip on Route #248. Great job!",
+    setShowEndAnimation(true);
+    
+    setTimeout(() => {
+      setCurrentTripStatus('inactive');
+      setShowFullMap(false);
+      setShowEndAnimation(false);
+      uiToast({
+        title: "Trip Ended!",
+        description: "You've completed your trip on Route #248. Great job!",
+      });
+    }, 3000);
+  };
+  
+  const handleSendSOS = () => {
+    toast.error("SOS Alert Sent!", {
+      description: "Emergency services and admin have been notified.",
+      duration: 5000,
     });
   };
+  
+  const handleNotifyDelay = () => {
+    toast.info("Delay Notification Sent", {
+      description: "Students have been notified about the 10-minute delay.",
+      duration: 3000,
+    });
+  };
+
+  if (showStopsPage) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <NavBar userType="driver" />
+        <div className="pt-16">
+          <StopsPage />
+          <div className="fixed bottom-4 right-4">
+            <Button 
+              variant="outline" 
+              className="bg-white shadow-md"
+              onClick={() => setShowStopsPage(false)}
+            >
+              Back to Dashboard
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -71,12 +115,36 @@ const DriverDashboard = () => {
           <div className="relative bg-white rounded-xl p-10 shadow-lg max-w-md w-full flex flex-col items-center">
             <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-6 relative">
               <div className="absolute inset-0 rounded-full border-4 border-green-500 animate-[pulse_1.5s_ease-in-out_infinite]"></div>
-              <CheckCircle2 className="h-12 w-12 text-green-500 animate-[check-bounce_2s_ease-in-out]" />
+              <div className="w-16 h-16 relative overflow-hidden">
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Bus className="h-8 w-8 text-green-500 animate-[bounce_2s_ease-in-out_infinite]" />
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 h-1 bg-gray-200">
+                  <div className="h-full bg-green-500 animate-[progress_2s_linear_forwards]"></div>
+                </div>
+              </div>
             </div>
             <h2 className="text-2xl font-bold text-center mb-2">Your trip is starting</h2>
             <p className="text-gray-600 text-center mb-4">Preparing your route and navigation...</p>
             <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
-              <div className="bg-brand h-full animate-[progress_2s_linear_forwards]"></div>
+              <div className="bg-brand h-full animate-[progress_3s_linear_forwards]"></div>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      {/* End Trip Animation Overlay */}
+      {showEndAnimation && (
+        <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
+          <div className="relative bg-white rounded-xl p-10 shadow-lg max-w-md w-full flex flex-col items-center">
+            <div className="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mb-6 relative">
+              <div className="absolute inset-0 rounded-full border-4 border-blue-500 animate-[pulse_1.5s_ease-in-out_infinite]"></div>
+              <CheckCircle2 className="h-12 w-12 text-blue-500 animate-[check-bounce_2s_ease-in-out]" />
+            </div>
+            <h2 className="text-2xl font-bold text-center mb-2">Trip completed!</h2>
+            <p className="text-gray-600 text-center mb-4">All destinations reached successfully</p>
+            <div className="w-full bg-gray-200 h-2 rounded-full overflow-hidden">
+              <div className="bg-blue-500 h-full animate-[progress_2s_linear_forwards]"></div>
             </div>
           </div>
         </div>
@@ -124,8 +192,12 @@ const DriverDashboard = () => {
                           <Button variant="ghost" className="w-full justify-start" asChild>
                             <a href="#"><Home className="mr-2 h-4 w-4" /> Dashboard</a>
                           </Button>
-                          <Button variant="ghost" className="w-full justify-start" asChild>
-                            <a href="#"><MapIcon className="mr-2 h-4 w-4" /> Routes</a>
+                          <Button 
+                            variant="ghost" 
+                            className="w-full justify-start"
+                            onClick={() => setShowStopsPage(true)}
+                          >
+                            <MapPin className="mr-2 h-4 w-4" /> Route Stops
                           </Button>
                           <Button variant="ghost" className="w-full justify-start" asChild>
                             <a href="#"><BarChart3 className="mr-2 h-4 w-4" /> Reports</a>
@@ -199,6 +271,7 @@ const DriverDashboard = () => {
                 icon={<MapPin className="h-5 w-5 text-amber-500" />}
                 actionText="See Details"
                 actionLink="#"
+                actionOnClick={() => setShowStopsPage(true)}
               />
               
               <DashboardCard 
@@ -234,11 +307,30 @@ const DriverDashboard = () => {
               <h2 className="text-lg font-medium">Live Route Tracking</h2>
               
               {currentTripStatus === 'active' && (
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     <span className="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>
                     Trip Active
                   </span>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-amber-600 border-amber-200 hover:bg-amber-50"
+                    onClick={handleNotifyDelay}
+                  >
+                    <Clock5 size={16} className="mr-1" /> Delay 10 min
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="text-red-600 border-red-200 hover:bg-red-50"
+                    onClick={handleSendSOS}
+                  >
+                    <AlertCircle size={16} className="mr-1" /> SOS
+                  </Button>
+                  
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -247,6 +339,7 @@ const DriverDashboard = () => {
                   >
                     End Trip
                   </Button>
+                  
                   <div className="relative">
                     <Sheet>
                       <SheetTrigger asChild>
@@ -258,6 +351,13 @@ const DriverDashboard = () => {
                         <div className="py-4">
                           <h3 className="text-lg font-medium mb-4">Options</h3>
                           <div className="space-y-4">
+                            <Button 
+                              onClick={() => setShowStopsPage(true)}
+                              variant="outline" 
+                              className="w-full justify-start"
+                            >
+                              <MapPin className="mr-2 h-4 w-4" /> View Stops
+                            </Button>
                             <Button onClick={() => setShowComplaintDialog(true)} variant="outline" className="w-full justify-start">
                               <AlertTriangle className="mr-2 h-4 w-4" /> Report Issue
                             </Button>
@@ -309,6 +409,14 @@ const DriverDashboard = () => {
               </div>
               
               <div className="flex justify-end mt-4">
+                <Button 
+                  onClick={() => setShowStopsPage(true)} 
+                  variant="outline" 
+                  size="sm" 
+                  className="mr-2"
+                >
+                  View Stops
+                </Button>
                 <Button onClick={() => setShowFullMap(false)} variant="outline" size="sm">
                   View Dashboard
                 </Button>
