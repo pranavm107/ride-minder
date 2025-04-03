@@ -3,15 +3,16 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Bus, User, MapPin, Menu, X } from 'lucide-react';
+import { Bus, User, MapPin, Menu, X, CreditCard } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useDeviceInfo } from '@/hooks/use-mobile';
 
 interface NavBarProps {
   userType?: 'student' | 'driver' | 'admin';
+  onPaymentClick?: () => void;
 }
 
-const NavBar = ({ userType }: NavBarProps) => {
+const NavBar = ({ userType, onPaymentClick }: NavBarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ const NavBar = ({ userType }: NavBarProps) => {
         </Link>
         
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-4">
           {menuItems.map((item) => (
             <Link
               key={item.path}
@@ -79,6 +80,18 @@ const NavBar = ({ userType }: NavBarProps) => {
             </Link>
           ))}
           
+          {userType === 'student' && onPaymentClick && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={onPaymentClick} 
+              className="mr-2 text-brand-500 border-brand-200 hover:bg-brand-50"
+            >
+              <CreditCard className="h-4 w-4 mr-1" />
+              Pay Fees
+            </Button>
+          )}
+          
           <Button variant="default" className="bg-brand-500 hover:bg-brand-600">
             Sign In
           </Button>
@@ -86,6 +99,17 @@ const NavBar = ({ userType }: NavBarProps) => {
         
         {/* Mobile Menu */}
         <div className="md:hidden flex items-center">
+          {userType === 'student' && onPaymentClick && (
+            <Button 
+              variant="outline" 
+              size="icon" 
+              onClick={onPaymentClick} 
+              className="mr-2 text-brand-500 border-brand-200"
+            >
+              <CreditCard className="h-4 w-4" />
+            </Button>
+          )}
+          
           <Sheet>
             <SheetTrigger asChild>
               <Button variant="ghost" size="icon" className="text-gray-700">
@@ -118,6 +142,16 @@ const NavBar = ({ userType }: NavBarProps) => {
                       {item.label}
                     </Link>
                   ))}
+                  
+                  {userType === 'student' && onPaymentClick && (
+                    <button
+                      onClick={onPaymentClick}
+                      className="px-2 py-3 rounded-md text-base font-medium text-brand-500 hover:bg-brand-50 flex items-center"
+                    >
+                      <CreditCard className="h-4 w-4 mr-2" />
+                      Pay Fees
+                    </button>
+                  )}
                 </div>
                 
                 <div className="pt-4 mt-6 border-t border-gray-100">

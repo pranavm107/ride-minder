@@ -270,10 +270,14 @@ const StudentDashboard = () => {
     setExpiryDate(formatExpiryDate(value));
   };
 
+  const handleOpenPaymentDialog = () => {
+    setShowPaymentDialog(true);
+  };
+
   if (currentView === 'stops') {
     return (
       <div className="min-h-screen bg-gray-50">
-        <NavBar />
+        <NavBar userType="student" onPaymentClick={handleOpenPaymentDialog} />
         
         <main className="pt-20 pb-12 px-4 md:px-8">
           <div className="max-w-7xl mx-auto">
@@ -362,7 +366,7 @@ const StudentDashboard = () => {
   if (currentView === 'complaints') {
     return (
       <div className="min-h-screen bg-gray-50">
-        <NavBar />
+        <NavBar userType="student" onPaymentClick={handleOpenPaymentDialog} />
         
         <main className="pt-20 pb-12 px-4 md:px-8">
           <div className="max-w-7xl mx-auto">
@@ -393,7 +397,7 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <NavBar userType="student" />
+      <NavBar userType="student" onPaymentClick={handleOpenPaymentDialog} />
       
       <main className="pt-20 pb-12 px-4 md:px-8">
         <div className="max-w-7xl mx-auto">
@@ -405,6 +409,14 @@ const StudentDashboard = () => {
               </div>
               
               <div className="mt-4 md:mt-0 flex items-center gap-3">
+                <Button 
+                  variant="outline" 
+                  className="gap-2 border-brand-200 text-brand-500 hover:bg-brand-50"
+                  onClick={handleOpenPaymentDialog}
+                >
+                  <DollarSign className="h-4 w-4" />
+                  Pay Fees
+                </Button>
                 <div className="relative">
                   <input 
                     type="text" 
