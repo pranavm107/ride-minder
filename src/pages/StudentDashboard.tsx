@@ -11,6 +11,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import ComplaintBox from '@/components/ComplaintBox';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -22,6 +23,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 
 const StudentDashboard = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'upcoming' | 'history'>('upcoming');
   const [emergencyPressed, setEmergencyPressed] = useState(false);
   const [emergencyTimer, setEmergencyTimer] = useState<NodeJS.Timeout | null>(null);
@@ -241,24 +243,38 @@ const StudentDashboard = () => {
       setProcessing(false);
       setShowPaymentDialog(false);
       
+      const newPaidAmount = Math.min(feesPaid + parseFloat(paymentAmount), totalFees);
+      const newRemainingAmount = Math.max(totalFees - newPaidAmount, 0);
+      const isNowCompleted = newPaidAmount >= totalFees;
+      
+      const paymentData = {
+        amount: paymentAmount,
+        date: new Date().toLocaleDateString('en-IN'),
+        time: new Date().toLocaleTimeString('en-IN'),
+        transactionId: "TXN" + Math.floor(Math.random() * 1000000),
+        paymentMethod: paymentMethod === 'card' ? 'Card Payment' : 'UPI Payment',
+        studentId: "STD12345",
+        studentName: "Alex Johnson",
+        email: "alex@example.com"
+      };
+      
+      setFeesPaid(newPaidAmount);
+      setRemainingFees(newRemainingAmount);
+      setPaymentCompleted(isNowCompleted);
+      
       setCardNumber("");
       setExpiryDate("");
       setCvv("");
       setUpiId("");
-      
-      setFeesPaid(prev => Math.min(prev + parseFloat(paymentAmount), totalFees));
-      setRemainingFees(prev => Math.max(prev - parseFloat(paymentAmount), 0));
-      
-      if (feesPaid + parseFloat(paymentAmount) >= totalFees) {
-        setPaymentCompleted(true);
-      }
       
       setShowPaymentSuccess(true);
       setShowConfetti(true);
       
       setTimeout(() => {
         setShowConfetti(false);
-      }, 5000);
+        setShowPaymentSuccess(false);
+        navigate('/receipt', { state: { paymentData } });
+      }, 3000);
       
       toast.success("Payment successful", {
         description: `Your payment of ₹${paymentAmount} has been processed. Receipt sent to your email.`,
@@ -1191,25 +1207,21 @@ const StudentDashboard = () => {
               </div>
             )}
             <div className="bg-white rounded-xl shadow-2xl p-6 flex flex-col items-center justify-center max-w-sm animate-[scale-in_0.5s_ease-out,fade-in_0.5s_ease-out]">
-              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                <Check className="h-8 w-8 text-green-600 animate-[scale-in_0.5s_ease-out_0.2s,bounce_1s_ease-in-out_0.5s]" />
+              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4 animate-[bounce_2s_ease-in-out_infinite]">
+                <Check className="h-8 w-8 text-green-600" strokeWidth={3} />
               </div>
               <h3 className="text-xl font-semibold mb-2">Payment Successful!</h3>
               <p className="text-gray-600 text-center mb-4">
-                Your payment of ₹{paymentAmount} has been processed successfully. You can download the receipt from your dashboard.
+                Your payment of ₹{paymentAmount} has been processed successfully. Redirecting to receipt...
               </p>
               <div className="bg-green-50 p-3 rounded-md text-green-700 w-full text-center text-sm">
                 {paymentCompleted 
                   ? "Great news! You've paid your fees in full. Enjoy hassle-free rides all year!"
                   : "Thank you for your payment. You're one step closer to completing your annual fee."}
               </div>
-              <Button 
-                variant="ghost" 
-                className="mt-4" 
-                onClick={() => setShowPaymentSuccess(false)}
-              >
-                Continue
-              </Button>
+              <div className="w-full bg-gray-200 rounded-full h-2 mt-4">
+                <div className="bg-green-500 h-2 rounded-full transition-all duration-500 animate-[progress_3s_linear_forwards]"></div>
+              </div>
             </div>
           </div>
         </div>
