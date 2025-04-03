@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
 import { cn } from '@/lib/utils';
-import { Bus, Clock, MapPin, User, MessageSquare, Search, Calendar, Bell, AlertTriangle, FileText, CreditCard, SkipForward, DollarSign } from 'lucide-react';
+import { Bus, Clock, MapPin, User, MessageSquare, Search, Calendar, Bell, AlertTriangle, FileText, CreditCard, SkipForward, DollarSign, IndianRupee, Check, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,6 +19,7 @@ import {
   DialogHeader,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
 
 const StudentDashboard = () => {
   const [activeTab, setActiveTab] = useState<'upcoming' | 'history'>('upcoming');
@@ -30,11 +31,21 @@ const StudentDashboard = () => {
   const [currentView, setCurrentView] = useState<'dashboard' | 'stops' | 'complaints'>('dashboard');
   const [showComplaintDialog, setShowComplaintDialog] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const [paymentAmount, setPaymentAmount] = useState("50.00");
+  const [paymentAmount, setPaymentAmount] = useState("3500.00");
   const [cardNumber, setCardNumber] = useState("");
   const [expiryDate, setExpiryDate] = useState("");
   const [cvv, setCvv] = useState("");
   const [processing, setProcessing] = useState(false);
+  
+  const [paymentMethod, setPaymentMethod] = useState<'card' | 'upi'>('card');
+  const [upiId, setUpiId] = useState("");
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
+  const [feesPaid, setFeesPaid] = useState(15000);
+  const [totalFees, setTotalFees] = useState(25000);
+  const [remainingFees, setRemainingFees] = useState(10000);
+  const [paymentCompleted, setPaymentCompleted] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [upiQrVisible, setUpiQrVisible] = useState(false);
   
   const isMobile = useIsMobile();
 
@@ -212,25 +223,45 @@ const StudentDashboard = () => {
   };
 
   const handlePayment = () => {
-    if (!cardNumber || !expiryDate || !cvv) {
-      toast.error("Please fill in all payment fields");
-      return;
+    if (paymentMethod === 'card') {
+      if (!cardNumber || !expiryDate || !cvv) {
+        toast.error("Please fill in all payment fields");
+        return;
+      }
+    } else if (paymentMethod === 'upi') {
+      if (!upiId && !upiQrVisible) {
+        toast.error("Please enter your UPI ID or scan the QR code");
+        return;
+      }
     }
 
     setProcessing(true);
 
-    // Simulate payment processing
     setTimeout(() => {
       setProcessing(false);
       setShowPaymentDialog(false);
       
-      // Reset form fields
       setCardNumber("");
       setExpiryDate("");
       setCvv("");
+      setUpiId("");
+      
+      setFeesPaid(prev => Math.min(prev + parseFloat(paymentAmount), totalFees));
+      setRemainingFees(prev => Math.max(prev - parseFloat(paymentAmount), 0));
+      
+      if (feesPaid + parseFloat(paymentAmount) >= totalFees) {
+        setPaymentCompleted(true);
+      }
+      
+      setShowPaymentSuccess(true);
+      setShowConfetti(true);
+      
+      setTimeout(() => {
+        setShowConfetti(false);
+      }, 5000);
       
       toast.success("Payment successful", {
-        description: `Your payment of $${paymentAmount} has been processed. Receipt sent to your email.`,
+        description: `Your payment of ₹${paymentAmount} has been processed. Receipt sent to your email.`,
       });
     }, 2000);
   };
@@ -272,6 +303,16 @@ const StudentDashboard = () => {
 
   const handleOpenPaymentDialog = () => {
     setShowPaymentDialog(true);
+  };
+
+  const handleToggleUpiQr = () => {
+    setUpiQrVisible(!upiQrVisible);
+  };
+
+  const handleDownloadReceipt = () => {
+    toast.success("Receipt downloaded successfully", {
+      description: "The receipt has been downloaded to your device.",
+    });
   };
 
   if (currentView === 'stops') {
@@ -414,7 +455,7 @@ const StudentDashboard = () => {
                   className="gap-2 border-brand-200 text-brand-500 hover:bg-brand-50"
                   onClick={handleOpenPaymentDialog}
                 >
-                  <DollarSign className="h-4 w-4" />
+                  <IndianRupee className="h-4 w-4" />
                   Pay Fees
                 </Button>
                 <div className="relative">
@@ -905,95 +946,274 @@ const StudentDashboard = () => {
       <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Make a Payment</DialogTitle>
+            <DialogTitle>Fee Payment</DialogTitle>
             <DialogDescription>
-              Make a secure payment for your bus service.
+              Make a secure payment for your bus service fees.
             </DialogDescription>
           </DialogHeader>
           
           <div className="space-y-4 py-3">
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="payment-amount">Payment Amount</Label>
-              <div className="relative">
-                <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-                <Input
-                  id="payment-amount"
-                  value={paymentAmount}
-                  onChange={(e) => setPaymentAmount(e.target.value)}
-                  className="pl-8"
-                />
-              </div>
-            </div>
-            
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="card-number">Card Number</Label>
-              <Input
-                id="card-number"
-                placeholder="1234 5678 9012 3456"
-                value={cardNumber}
-                onChange={handleCardNumberChange}
-                maxLength={19}
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="expiry">Expiry Date</Label>
-                <Input
-                  id="expiry"
-                  placeholder="MM/YY"
-                  value={expiryDate}
-                  onChange={handleExpiryDateChange}
-                  maxLength={5}
-                />
+            <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
+              <h3 className="text-sm font-medium text-gray-700 mb-2">Fee Status</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Annual Fee:</span>
+                  <span className="font-medium">₹{totalFees.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Paid:</span>
+                  <span className="font-medium text-green-600">₹{feesPaid.toLocaleString('en-IN')}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm text-gray-600">Remaining:</span>
+                  <span className="font-medium text-amber-600">₹{remainingFees.toLocaleString('en-IN')}</span>
+                </div>
+                
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div className="bg-green-500 h-2 rounded-full transition-all duration-500" 
+                    style={{width: `${(feesPaid / totalFees) * 100}%`}}></div>
+                </div>
+                <p className="text-xs text-gray-500 text-right">{Math.round((feesPaid / totalFees) * 100)}% paid</p>
               </div>
               
-              <div className="flex flex-col space-y-1.5">
-                <Label htmlFor="cvv">CVV</Label>
-                <Input
-                  id="cvv"
-                  placeholder="123"
-                  value={cvv}
-                  onChange={(e) => setCvv(e.target.value)}
-                  maxLength={3}
-                  type="password"
-                />
-              </div>
+              {paymentCompleted ? (
+                <div className="bg-green-50 border border-green-200 rounded-md p-3 mt-2 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <div className="bg-green-100 p-1 rounded-full mr-2">
+                      <Check className="h-4 w-4 text-green-600" />
+                    </div>
+                    <p className="text-sm text-green-700">All fees paid! You're all set for the year.</p>
+                  </div>
+                  
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="border-green-200 text-green-700 hover:bg-green-50"
+                    onClick={handleDownloadReceipt}
+                  >
+                    <Download className="h-3.5 w-3.5 mr-1" />
+                    Receipt
+                  </Button>
+                </div>
+              ) : null}
             </div>
             
-            <div className="rounded-md bg-gray-50 p-3 text-sm text-gray-700">
-              <p className="flex items-center">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 mr-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="m9 12 2 2 4-4"/>
-                    <path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/>
-                  </svg>
-                </span>
-                Your payment information is encrypted and secure.
-              </p>
-            </div>
+            {!paymentCompleted && (
+              <>
+                <div className="flex border-b border-gray-200">
+                  <button
+                    className={cn(
+                      "flex-1 py-2 text-sm font-medium transition-colors border-b-2",
+                      paymentMethod === 'card' 
+                        ? "text-brand-600 border-brand-500" 
+                        : "text-gray-600 border-transparent hover:text-brand-600"
+                    )}
+                    onClick={() => setPaymentMethod('card')}
+                  >
+                    <CreditCard className="h-4 w-4 mb-0.5 inline mr-1.5" />
+                    Card Payment
+                  </button>
+                  <button
+                    className={cn(
+                      "flex-1 py-2 text-sm font-medium transition-colors border-b-2",
+                      paymentMethod === 'upi' 
+                        ? "text-brand-600 border-brand-500" 
+                        : "text-gray-600 border-transparent hover:text-brand-600"
+                    )}
+                    onClick={() => setPaymentMethod('upi')}
+                  >
+                    <IndianRupee className="h-4 w-4 mb-0.5 inline mr-1.5" />
+                    UPI Payment
+                  </button>
+                </div>
+                
+                <div className="flex flex-col space-y-1.5">
+                  <Label htmlFor="payment-amount">Payment Amount</Label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">₹</span>
+                    <Input
+                      id="payment-amount"
+                      value={paymentAmount}
+                      onChange={(e) => setPaymentAmount(e.target.value)}
+                      className="pl-8"
+                    />
+                  </div>
+                </div>
+                
+                {paymentMethod === 'card' ? (
+                  <>
+                    <div className="flex flex-col space-y-1.5">
+                      <Label htmlFor="card-number">Card Number</Label>
+                      <Input
+                        id="card-number"
+                        placeholder="1234 5678 9012 3456"
+                        value={cardNumber}
+                        onChange={handleCardNumberChange}
+                        maxLength={19}
+                      />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="expiry">Expiry Date</Label>
+                        <Input
+                          id="expiry"
+                          placeholder="MM/YY"
+                          value={expiryDate}
+                          onChange={handleExpiryDateChange}
+                          maxLength={5}
+                        />
+                      </div>
+                      
+                      <div className="flex flex-col space-y-1.5">
+                        <Label htmlFor="cvv">CVV</Label>
+                        <Input
+                          id="cvv"
+                          placeholder="123"
+                          value={cvv}
+                          onChange={(e) => setCvv(e.target.value)}
+                          maxLength={3}
+                          type="password"
+                        />
+                      </div>
+                    </div>
+                  </>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="flex flex-col space-y-1.5">
+                      <Label htmlFor="upi-id">UPI ID</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          id="upi-id"
+                          placeholder="name@upi"
+                          value={upiId}
+                          onChange={(e) => setUpiId(e.target.value)}
+                          className="flex-1"
+                        />
+                        <Button 
+                          variant="outline" 
+                          type="button" 
+                          onClick={handleToggleUpiQr}
+                          className="border-brand-200 text-brand-500"
+                        >
+                          {upiQrVisible ? "Hide QR" : "Show QR"}
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    {upiQrVisible && (
+                      <div className="flex flex-col items-center space-y-2">
+                        <div className="w-48 h-48 bg-white border border-gray-200 p-2">
+                          <div className="w-full h-full bg-gray-50 grid place-items-center">
+                            <img
+                              src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAMAAABrrFhUAAAAA1BMVEUAAACnej3aAAAAAXRSTlMAQObYZgAAAEtJREFUeJztwTEBAAAAwqD1T+1vBqAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAbnDAAAEQf8uZAAAAAElFTkSuQmCC"
+                              alt="UPI QR Code"
+                              className="w-full p-2"
+                            />
+                          </div>
+                        </div>
+                        <p className="text-xs text-gray-500">Scan with any UPI app to pay</p>
+                      </div>
+                    )}
+                    
+                    <div className="flex flex-wrap gap-2 pt-2">
+                      {['PhonePe', 'Google Pay', 'Paytm', 'Amazon Pay', 'BHIM'].map(app => (
+                        <div key={app} className="bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200 text-xs font-medium cursor-pointer hover:bg-gray-100">
+                          {app}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                <div className="rounded-md bg-gray-50 p-3 text-sm text-gray-700">
+                  <p className="flex items-center">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 mr-2">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="m9 12 2 2 4-4"/>
+                        <path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18Z"/>
+                      </svg>
+                    </span>
+                    Your payment information is encrypted and secure.
+                  </p>
+                </div>
+              </>
+            )}
           </div>
           
           <DialogFooter className="flex space-x-2 pt-2">
             <Button variant="outline" onClick={() => setShowPaymentDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handlePayment} disabled={processing}>
-              {processing ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Processing...
-                </>
-              ) : (
-                "Pay $" + paymentAmount
-              )}
-            </Button>
+            {!paymentCompleted && (
+              <Button onClick={handlePayment} disabled={processing}>
+                {processing ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Processing...
+                  </>
+                ) : (
+                  `Pay ₹${paymentAmount}`
+                )}
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+      {showPaymentSuccess && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none">
+          <div className="relative">
+            {showConfetti && (
+              <div className="absolute inset-0 -translate-y-full animate-fade-in">
+                {[...Array(50)].map((_, i) => {
+                  const randomX = Math.random() * 400 - 200;
+                  const randomY = Math.random() * 200 - 100;
+                  const randomColor = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500'][Math.floor(Math.random() * 6)];
+                  const size = Math.random() * 10 + 5;
+                  return (
+                    <div 
+                      key={i}
+                      className={`absolute top-0 left-1/2 w-2 h-2 rounded-full ${randomColor} animate-confetti`}
+                      style={{
+                        transform: `translate(${randomX}px, ${randomY}px)`,
+                        width: `${size}px`,
+                        height: `${size}px`,
+                        animationDelay: `${Math.random() * 0.5}s`,
+                        animationDuration: `${Math.random() * 1 + 2}s`
+                      }}
+                    />
+                  );
+                })}
+              </div>
+            )}
+            <div className="bg-white rounded-xl shadow-2xl p-6 flex flex-col items-center justify-center max-w-sm animate-[scale-in_0.5s_ease-out,fade-in_0.5s_ease-out]">
+              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                <Check className="h-8 w-8 text-green-600 animate-[scale-in_0.5s_ease-out_0.2s,bounce_1s_ease-in-out_0.5s]" />
+              </div>
+              <h3 className="text-xl font-semibold mb-2">Payment Successful!</h3>
+              <p className="text-gray-600 text-center mb-4">
+                Your payment of ₹{paymentAmount} has been processed successfully. You can download the receipt from your dashboard.
+              </p>
+              <div className="bg-green-50 p-3 rounded-md text-green-700 w-full text-center text-sm">
+                {paymentCompleted 
+                  ? "Great news! You've paid your fees in full. Enjoy hassle-free rides all year!"
+                  : "Thank you for your payment. You're one step closer to completing your annual fee."}
+              </div>
+              <Button 
+                variant="ghost" 
+                className="mt-4" 
+                onClick={() => setShowPaymentSuccess(false)}
+              >
+                Continue
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

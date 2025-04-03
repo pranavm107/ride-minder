@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Bus, User, MapPin, Menu, X, CreditCard } from 'lucide-react';
+import { Bus, User, MapPin, Menu, X, CreditCard, IndianRupee } from 'lucide-react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useDeviceInfo } from '@/hooks/use-mobile';
 
@@ -87,7 +87,7 @@ const NavBar = ({ userType, onPaymentClick }: NavBarProps) => {
               onClick={onPaymentClick} 
               className="mr-2 text-brand-500 border-brand-200 hover:bg-brand-50"
             >
-              <CreditCard className="h-4 w-4 mr-1" />
+              <IndianRupee className="h-4 w-4 mr-1" />
               Pay Fees
             </Button>
           )}
@@ -106,7 +106,7 @@ const NavBar = ({ userType, onPaymentClick }: NavBarProps) => {
               onClick={onPaymentClick} 
               className="mr-2 text-brand-500 border-brand-200"
             >
-              <CreditCard className="h-4 w-4" />
+              <IndianRupee className="h-4 w-4" />
             </Button>
           )}
           
@@ -148,7 +148,7 @@ const NavBar = ({ userType, onPaymentClick }: NavBarProps) => {
                       onClick={onPaymentClick}
                       className="px-2 py-3 rounded-md text-base font-medium text-brand-500 hover:bg-brand-50 flex items-center"
                     >
-                      <CreditCard className="h-4 w-4 mr-2" />
+                      <IndianRupee className="h-4 w-4 mr-2" />
                       Pay Fees
                     </button>
                   )}
