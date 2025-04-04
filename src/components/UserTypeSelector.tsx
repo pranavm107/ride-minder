@@ -14,7 +14,7 @@ const UserTypeSelector = ({ className }: UserTypeProps) => {
       title: 'Student',
       description: 'View bus schedules and track your rides in real-time',
       icon: <User className="h-6 w-6 text-brand-500" />,
-      link: '/student',
+      link: '/login/student',
       color: 'from-blue-50 to-blue-100',
       iconBg: 'bg-blue-100',
       borderColor: 'border-blue-200',
@@ -23,7 +23,7 @@ const UserTypeSelector = ({ className }: UserTypeProps) => {
       title: 'Driver',
       description: 'Manage your route and communicate with students',
       icon: <Bus className="h-6 w-6 text-brand-500" />,
-      link: '/driver',
+      link: '/login/driver',
       color: 'from-emerald-50 to-emerald-100',
       iconBg: 'bg-emerald-100',
       borderColor: 'border-emerald-200',
@@ -32,7 +32,7 @@ const UserTypeSelector = ({ className }: UserTypeProps) => {
       title: 'Administrator',
       description: 'Monitor fleet, manage routes, and access analytics',
       icon: <Search className="h-6 w-6 text-brand-500" />,
-      link: '/admin',
+      link: '/login/admin',
       color: 'from-amber-50 to-amber-100',
       iconBg: 'bg-amber-100',
       borderColor: 'border-amber-200',
@@ -82,7 +82,7 @@ const UserTypeSelector = ({ className }: UserTypeProps) => {
                 {type.description}
               </p>
               <div className="text-brand-500 text-sm font-medium inline-flex items-center group-hover:underline">
-                Enter Dashboard
+                Login
                 <svg 
                   xmlns="http://www.w3.org/2000/svg" 
                   className="h-4 w-4 ml-1 transition-transform duration-200 group-hover:translate-x-1" 

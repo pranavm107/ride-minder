@@ -13,17 +13,27 @@ import NotFound from "./pages/NotFound";
 import RouteStopsPage from "./pages/RouteStopsPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
+import StudentLogin from "./pages/login/StudentLogin";
+import DriverLogin from "./pages/login/DriverLogin";
+import AdminLogin from "./pages/login/AdminLogin";
+import ForgotPassword from "./pages/login/ForgotPassword";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <Toaster />
-    <Sonner />
-    <TooltipProvider>
-      <BrowserRouter>
+    <BrowserRouter>
+      <TooltipProvider>
         <Routes>
           <Route path="/" element={<Index />} />
+          
+          {/* Authentication Routes */}
+          <Route path="/login/student" element={<StudentLogin />} />
+          <Route path="/login/driver" element={<DriverLogin />} />
+          <Route path="/login/admin" element={<AdminLogin />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          
+          {/* Dashboard Routes */}
           <Route path="/student" element={<StudentDashboard />} />
           <Route path="/driver" element={<DriverDashboard />} />
           <Route path="/admin" element={<AdminDashboard />} />
@@ -31,11 +41,14 @@ const App = () => (
           <Route path="/route-stops" element={<RouteStopsPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+        <Toaster />
+        <Sonner />
+      </TooltipProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 
