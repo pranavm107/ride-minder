@@ -154,12 +154,9 @@ const DriverDashboard = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 gap-6">
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <div className="flex justify-between items-center">
-              <div>
-                <h1 className={cn(
-                  "text-2xl font-semibold text-gray-800",
-                  isMobile ? "mb-2" : ""
-                )}>Hello, Michael</h1>
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
+              <div className="mb-4 sm:mb-0">
+                <h1 className="text-2xl font-semibold text-gray-800">Hello, Michael</h1>
                 <p className="text-gray-500 mt-1">Thursday, October 12, 2023</p>
               </div>
               <div className="flex items-center gap-2">
