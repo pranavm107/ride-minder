@@ -9,7 +9,7 @@ import {
   MenubarSeparator, 
   MenubarTrigger 
 } from "@/components/ui/menubar";
-import { FileBarChart, Settings, LogOut } from 'lucide-react';
+import { FileBarChart, Settings, LogOut, Menu } from 'lucide-react';
 
 const DriverMenuBar = () => {
   const navigate = useNavigate();
@@ -22,8 +22,9 @@ const DriverMenuBar = () => {
   return (
     <Menubar className="border-none bg-transparent">
       <MenubarMenu>
-        <MenubarTrigger className="font-medium data-[state=open]:bg-gray-100">
-          Menu
+        <MenubarTrigger className="font-medium data-[state=open]:bg-gray-100 flex items-center gap-2">
+          <span>Menu</span>
+          <Menu className="h-4 w-4" />
         </MenubarTrigger>
         <MenubarContent className="min-w-[180px]">
           <MenubarItem 

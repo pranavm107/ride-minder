@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Clock, Calendar, Menu, MapPin, Bell, FileText, Home, MapIcon, BarChart3, Settings, AlertTriangle, CheckCircle2, MoreVertical, AlertCircle, Clock5 } from 'lucide-react';
+import { Clock, Calendar, MapPin, Bell, FileText, Home, MapIcon, BarChart3, Settings, AlertTriangle, CheckCircle2, MoreVertical, AlertCircle, Clock5 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import Bus from '@/components/ui/Bus';
@@ -154,83 +154,12 @@ const DriverDashboard = () => {
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 gap-6">
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-              <div className="mb-4 sm:mb-0">
+            <div className="flex items-center justify-between">
+              <div className="flex flex-col">
                 <h1 className="text-2xl font-semibold text-gray-800">Hello, Michael</h1>
                 <p className="text-gray-500 mt-1">Thursday, October 12, 2023</p>
               </div>
-              <div className="flex items-center gap-2">
-                {!isMobile && currentTripStatus === 'inactive' ? (
-                  <Button 
-                    size="lg" 
-                    className="bg-green-600 hover:bg-green-700 text-white font-medium px-6"
-                    onClick={handleStartTrip}
-                  >
-                    <MapIcon size={18} className="mr-2" /> Start Trip
-                  </Button>
-                ) : !isMobile && (
-                  <Button 
-                    size="lg" 
-                    variant="destructive"
-                    className="font-medium px-6"
-                    onClick={handleEndTrip}
-                  >
-                    <Clock size={18} className="mr-2" /> End Trip
-                  </Button>
-                )}
-                
-                <DriverMenuBar />
-                
-                <Sheet>
-                  <SheetTrigger asChild>
-                    <Button size="icon" variant="outline" className="md:hidden">
-                      <Menu />
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="left" className="w-[250px] sm:w-[300px]">
-                    <div className="px-1 py-6 space-y-6">
-                      <div>
-                        <h3 className="mb-4 px-4 text-lg font-medium">Menu</h3>
-                        <div className="space-y-1">
-                          <Button variant="ghost" className="w-full justify-start" asChild>
-                            <a href="#"><Home className="mr-2 h-4 w-4" /> Dashboard</a>
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            className="w-full justify-start"
-                            onClick={() => setShowStopsPage(true)}
-                          >
-                            <MapPin className="mr-2 h-4 w-4" /> Route Stops
-                          </Button>
-                          <Button variant="ghost" className="w-full justify-start" asChild>
-                            <a href="#"><BarChart3 className="mr-2 h-4 w-4" /> Reports</a>
-                          </Button>
-                          <Button variant="ghost" className="w-full justify-start" asChild>
-                            <a href="#"><Settings className="mr-2 h-4 w-4" /> Settings</a>
-                          </Button>
-                        </div>
-                      </div>
-                      
-                      <Separator />
-                      
-                      <div>
-                        <h3 className="mb-4 px-4 text-lg font-medium">Quick Actions</h3>
-                        <div className="space-y-1">
-                          <Button onClick={() => setShowLeaveDialog('regular')} variant="ghost" className="w-full justify-start">
-                            <Calendar className="mr-2 h-4 w-4" /> Apply for Leave
-                          </Button>
-                          <Button onClick={() => setShowLeaveDialog('emergency')} variant="ghost" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50">
-                            <AlertTriangle className="mr-2 h-4 w-4" /> Emergency Leave
-                          </Button>
-                          <Button onClick={() => setShowComplaintDialog(true)} variant="ghost" className="w-full justify-start">
-                            <AlertTriangle className="mr-2 h-4 w-4" /> Report Issue
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </div>
+              <DriverMenuBar />
             </div>
           </div>
           
