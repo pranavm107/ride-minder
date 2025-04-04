@@ -16,6 +16,8 @@ import { Clock, Calendar, Menu, MapPin, Bell, FileText, Home, MapIcon, BarChart3
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import Bus from '@/components/ui/Bus';
+import DriverMenuBar from '@/components/DriverMenuBar';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const studentAttendance = [
   { id: '2023001', name: 'Alice Johnson', grade: '10th', stop: 'Main Street', morningStatus: 'Present', afternoonStatus: 'Present' },
@@ -36,6 +38,7 @@ const DriverDashboard = () => {
   const mapRef = useRef<HTMLDivElement>(null);
   const { toast: uiToast } = useToast();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   
   useEffect(() => {
     if (showFullMap && mapRef.current) {
@@ -153,28 +156,34 @@ const DriverDashboard = () => {
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-2xl font-semibold text-gray-800">Hello, Michael</h1>
+                <h1 className={cn(
+                  "text-2xl font-semibold text-gray-800",
+                  isMobile ? "mb-2" : ""
+                )}>Hello, Michael</h1>
                 <p className="text-gray-500 mt-1">Thursday, October 12, 2023</p>
               </div>
               <div className="flex items-center gap-2">
-                {currentTripStatus === 'inactive' ? (
+                {!isMobile && currentTripStatus === 'inactive' ? (
                   <Button 
                     size="lg" 
-                    className="hidden md:flex bg-green-600 hover:bg-green-700 text-white font-medium px-6"
+                    className="bg-green-600 hover:bg-green-700 text-white font-medium px-6"
                     onClick={handleStartTrip}
                   >
                     <MapIcon size={18} className="mr-2" /> Start Trip
                   </Button>
-                ) : (
+                ) : !isMobile && (
                   <Button 
                     size="lg" 
                     variant="destructive"
-                    className="hidden md:flex font-medium px-6"
+                    className="font-medium px-6"
                     onClick={handleEndTrip}
                   >
                     <Clock size={18} className="mr-2" /> End Trip
                   </Button>
                 )}
+                
+                <DriverMenuBar />
+                
                 <Sheet>
                   <SheetTrigger asChild>
                     <Button size="icon" variant="outline" className="md:hidden">
@@ -227,6 +236,29 @@ const DriverDashboard = () => {
               </div>
             </div>
           </div>
+          
+          {isMobile && currentTripStatus === 'inactive' && (
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+              <Button 
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-medium"
+                onClick={handleStartTrip}
+              >
+                <MapIcon size={18} className="mr-2" /> Start Trip
+              </Button>
+            </div>
+          )}
+          
+          {isMobile && currentTripStatus === 'active' && (
+            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+              <Button 
+                variant="destructive"
+                className="w-full font-medium"
+                onClick={handleEndTrip}
+              >
+                <Clock size={18} className="mr-2" /> End Trip
+              </Button>
+            </div>
+          )}
           
           {currentTripStatus === 'inactive' && (
             <div className="bg-gradient-to-r from-brand-500 to-indigo-600 rounded-xl p-8 shadow-md text-white">

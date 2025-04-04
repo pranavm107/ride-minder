@@ -137,6 +137,19 @@
   }
 }
 
+/* Added floating animation for background shapes */
+@keyframes float {
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-40px) scale(1.05) rotate(5deg);
+  }
+  100% {
+    transform: translateY(-20px) scale(0.95) rotate(-5deg);
+  }
+}
+
 body {
   @apply bg-background text-foreground;
   font-family: var(--font-sans);
