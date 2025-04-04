@@ -1,9 +1,10 @@
 
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Bus } from 'lucide-react';
+import { Bus, ChevronLeft } from 'lucide-react';
 import { AnimatedQuote } from '@/components/auth/AnimatedQuote';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface AuthLayoutProps {
   children: React.ReactNode;
@@ -25,6 +26,19 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
   backgroundImage,
   quote,
 }) => {
+  const isMobile = useIsMobile();
+  const location = useLocation();
+  const [animateIn, setAnimateIn] = useState(false);
+  
+  // Animation on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnimateIn(true);
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
+
   // Background colors based on dashboard type
   const getBgColor = () => {
     switch (dashboardType) {
@@ -64,7 +78,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
                 to="/" 
                 className="inline-flex items-center text-white/80 hover:text-white transition-colors"
               >
-                <span className="mr-2">←</span> Back to home
+                <ChevronLeft className="mr-1 h-4 w-4" /> Back to home
               </Link>
             </div>
           </div>
@@ -72,7 +86,10 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
       </div>
       
       {/* Right panel - Form */}
-      <div className="w-full md:w-1/2 p-6 sm:p-12 flex flex-col justify-center">
+      <div className={cn(
+        "w-full md:w-1/2 min-h-screen p-6 sm:p-12 flex flex-col justify-center transition-all duration-500",
+        animateIn ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+      )}>
         <div className="md:hidden flex items-center justify-between mb-8">
           <Link to="/" className="flex items-center gap-2">
             <div className="h-8 w-8 rounded-lg bg-brand-500 flex items-center justify-center">
@@ -85,7 +102,7 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
             to="/" 
             className="inline-flex items-center text-gray-600 hover:text-gray-900 transition-colors"
           >
-            <span className="mr-1">←</span> Home
+            <ChevronLeft className="mr-1 h-4 w-4" /> Home
           </Link>
         </div>
         
@@ -96,6 +113,17 @@ const AuthLayout: React.FC<AuthLayoutProps> = ({
           </div>
           
           {children}
+          
+          {/* Mobile Quote */}
+          {isMobile && quote && (
+            <div className="mt-12 pt-8 border-t border-gray-100">
+              <AnimatedQuote 
+                text={quote.text} 
+                author={quote.author} 
+                isDark={false}
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

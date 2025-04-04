@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthLayout from '@/components/auth/AuthLayout';
 import LoginForm from '@/components/auth/LoginForm';
@@ -22,7 +22,7 @@ const StudentLogin = () => {
       
       // Simulate dashboard loading
       setTimeout(() => {
-        navigate('/student');
+        navigate('/student', { state: { fromLogin: true } });
       }, 2000);
     }, 1500);
   };

@@ -31,12 +31,12 @@ const NavBar = ({ userType, onPaymentClick }: NavBarProps) => {
   // Determine if we're on the home page
   const isHomePage = location.pathname === '/';
   
-  // Menu items
+  // Menu items - updated to point to login pages
   const menuItems = [
     { label: 'Home', path: '/' },
-    { label: 'Student', path: '/student' },
-    { label: 'Driver', path: '/driver' },
-    { label: 'Admin', path: '/admin' }
+    { label: 'Student', path: '/login/student' },
+    { label: 'Driver', path: '/login/driver' },
+    { label: 'Admin', path: '/login/admin' }
   ];
 
   return (
@@ -79,22 +79,6 @@ const NavBar = ({ userType, onPaymentClick }: NavBarProps) => {
               )}
             </Link>
           ))}
-          
-          {userType === 'student' && onPaymentClick && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={onPaymentClick} 
-              className="mr-2 text-brand-500 border-brand-200 hover:bg-brand-50"
-            >
-              <IndianRupee className="h-4 w-4 mr-1" />
-              Pay Fees
-            </Button>
-          )}
-          
-          <Button variant="default" className="bg-brand-500 hover:bg-brand-600">
-            Sign In
-          </Button>
         </div>
         
         {/* Mobile Menu */}
@@ -152,15 +136,6 @@ const NavBar = ({ userType, onPaymentClick }: NavBarProps) => {
                       Pay Fees
                     </button>
                   )}
-                </div>
-                
-                <div className="pt-4 mt-6 border-t border-gray-100">
-                  <Button 
-                    variant="default" 
-                    className="w-full bg-brand-500 hover:bg-brand-600"
-                  >
-                    Sign In
-                  </Button>
                 </div>
               </div>
             </SheetContent>
