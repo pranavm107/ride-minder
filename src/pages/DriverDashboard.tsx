@@ -15,6 +15,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Clock, Calendar, Menu, MapPin, Bell, FileText, Home, MapIcon, BarChart3, Settings, AlertTriangle, CheckCircle2, MoreVertical, AlertCircle, Clock5 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import Bus from '@/components/ui/Bus';
 
 const studentAttendance = [
   { id: '2023001', name: 'Alice Johnson', grade: '10th', stop: 'Main Street', morningStatus: 'Present', afternoonStatus: 'Present' },
@@ -36,7 +37,6 @@ const DriverDashboard = () => {
   const { toast: uiToast } = useToast();
   const navigate = useNavigate();
   
-  // Scroll to map when trip starts
   useEffect(() => {
     if (showFullMap && mapRef.current) {
       mapRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -109,7 +109,6 @@ const DriverDashboard = () => {
     <div className="min-h-screen bg-gray-50">
       <NavBar userType="driver" />
       
-      {/* Start Trip Animation Overlay */}
       {showStartAnimation && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
           <div className="relative bg-white rounded-xl p-10 shadow-lg max-w-md w-full flex flex-col items-center">
@@ -133,7 +132,6 @@ const DriverDashboard = () => {
         </div>
       )}
       
-      {/* End Trip Animation Overlay */}
       {showEndAnimation && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
           <div className="relative bg-white rounded-xl p-10 shadow-lg max-w-md w-full flex flex-col items-center">
@@ -152,7 +150,6 @@ const DriverDashboard = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="grid grid-cols-1 gap-6">
-          {/* Header Section */}
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <div className="flex justify-between items-center">
               <div>
@@ -231,7 +228,6 @@ const DriverDashboard = () => {
             </div>
           </div>
           
-          {/* Start Trip Call-to-Action (only when inactive) */}
           {currentTripStatus === 'inactive' && (
             <div className="bg-gradient-to-r from-brand-500 to-indigo-600 rounded-xl p-8 shadow-md text-white">
               <div className="flex flex-col md:flex-row justify-between items-center">
@@ -252,7 +248,6 @@ const DriverDashboard = () => {
             </div>
           )}
           
-          {/* Condensed Dashboard Cards (Only show when trip is inactive or user has scrolled past map) */}
           {!showFullMap && (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
               <DashboardCard 
@@ -295,7 +290,6 @@ const DriverDashboard = () => {
             </div>
           )}
           
-          {/* Live Route Tracking - Full Width when trip is active */}
           <div 
             ref={mapRef}
             className={cn(
@@ -381,7 +375,6 @@ const DriverDashboard = () => {
             </div>
           </div>
           
-          {/* Statistics (Shown conditionally) */}
           {showFullMap ? (
             <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
               <h2 className="text-lg font-medium mb-4">Current Trip Statistics</h2>
@@ -436,10 +429,8 @@ const DriverDashboard = () => {
             )
           )}
           
-          {/* Only show remaining content if not in full map view */}
           {!showFullMap && (
             <>
-              {/* Statistics Card */}
               <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                 <h2 className="text-lg font-medium mb-4">Today's Statistics</h2>
                 
@@ -475,13 +466,11 @@ const DriverDashboard = () => {
                 </div>
               </div>
               
-              {/* Trip History */}
               <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                 <h2 className="text-lg font-medium mb-4">Recent Trip History</h2>
                 <TripHistory userType="driver" />
               </div>
               
-              {/* Student Attendance */}
               <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="text-lg font-medium">Today's Student Attendance</h2>
@@ -540,7 +529,6 @@ const DriverDashboard = () => {
         </div>
       </main>
       
-      {/* Leave Application Dialog */}
       <Dialog open={showLeaveDialog !== null} onOpenChange={(open) => !open && setShowLeaveDialog(null)}>
         <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden">
           <DialogHeader className="px-6 pt-6">
@@ -558,7 +546,6 @@ const DriverDashboard = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Complaint Dialog */}
       <Dialog open={showComplaintDialog} onOpenChange={(open) => !open && setShowComplaintDialog(false)}>
         <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden">
           <DialogHeader className="px-6 pt-6">
