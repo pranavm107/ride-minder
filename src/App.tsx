@@ -27,6 +27,7 @@ import CustomerSupportPage from "./pages/CustomerSupportPage";
 import CameraControlPage from "./pages/CameraControlPage";
 import DriverDocumentsPage from "./pages/DriverDocumentsPage";
 import StudentCommunityPage from "./pages/StudentCommunityPage";
+import NavRedirector from "./components/NavRedirector";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +37,7 @@ const AnimatedRoutes = () => {
   
   return (
     <AnimatePresence mode="wait">
+      <NavRedirector />
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Index />} />
         
