@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -172,7 +171,6 @@ const StudentCommunityPage: React.FC = () => {
     },
   ]);
   
-  // Mock bus mates
   const busMates = [
     { id: 'USR002', name: 'Emma Wilson', avatar: '', status: 'active' },
     { id: 'USR003', name: 'Jacob Taylor', avatar: '', status: 'active' },
@@ -234,7 +232,6 @@ const StudentCommunityPage: React.FC = () => {
     setNewMessage('');
   };
   
-  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -285,7 +282,6 @@ const StudentCommunityPage: React.FC = () => {
                   <ScrollArea className="flex-1 p-4">
                     <div className="space-y-4">
                       {messages.map((message, index) => {
-                        // Check if we need to show date separator
                         const showDateSeparator =
                           index === 0 ||
                           formatDate(message.timestamp) !== formatDate(messages[index - 1].timestamp);
@@ -564,11 +560,9 @@ const StudentCommunityPage: React.FC = () => {
                       {busMates
                         .filter(user => !user.role || user.role === 'student')
                         .sort((a, b) => {
-                          // Sort active users first
                           if (a.status === 'active' && b.status !== 'active') return -1;
                           if (a.status !== 'active' && b.status === 'active') return 1;
                           
-                          // Then sort by name
                           return a.name.localeCompare(b.name);
                         })
                         .map((user) => (
