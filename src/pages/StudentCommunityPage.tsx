@@ -78,7 +78,7 @@ const StudentCommunityPage: React.FC = () => {
     },
     {
       id: 'MSG003',
-      content: 'I studied all night, but I'm still nervous about it!',
+      content: "I studied all night, but I'm still nervous about it!",
       sender: {
         id: 'USR003',
         name: 'Jacob Taylor',
@@ -89,7 +89,7 @@ const StudentCommunityPage: React.FC = () => {
     },
     {
       id: 'MSG004',
-      content: 'You'll do great, Jacob! We can review some problems together on the way if you want.',
+      content: "You'll do great, Jacob! We can review some problems together on the way if you want.",
       sender: {
         id: 'USR004',
         name: 'Sophia Martinez',
@@ -100,7 +100,7 @@ const StudentCommunityPage: React.FC = () => {
     },
     {
       id: 'MSG005',
-      content: 'Hey everyone, don't forget we have basketball practice after school today!',
+      content: "Hey everyone, don't forget we have basketball practice after school today!",
       sender: {
         id: 'USR005',
         name: 'Daniel Brown',
@@ -111,7 +111,7 @@ const StudentCommunityPage: React.FC = () => {
     },
     {
       id: 'MSG006',
-      content: 'We'll be arriving at the school in approximately 10 minutes. Please make sure you have all your belongings ready.',
+      content: "We'll be arriving at the school in approximately 10 minutes. Please make sure you have all your belongings ready.",
       sender: {
         id: 'DRV001',
         name: 'Mr. Smith',
@@ -139,7 +139,7 @@ const StudentCommunityPage: React.FC = () => {
     {
       id: 'ANN002',
       title: 'New Bus Rules',
-      content: 'Please remember to keep the aisle clear of backpacks and to remain seated while the bus is in motion. These rules are for everyone's safety.',
+      content: "Please remember to keep the aisle clear of backpacks and to remain seated while the bus is in motion. These rules are for everyone's safety.",
       sender: {
         name: 'Transportation Office',
         role: 'admin',
@@ -150,7 +150,7 @@ const StudentCommunityPage: React.FC = () => {
     {
       id: 'ANN003',
       title: 'Bus Maintenance Day',
-      content: 'This Friday, Bus #42 will be unavailable due to scheduled maintenance. A substitute bus will be provided, but please note it might look different from what you're used to.',
+      content: "This Friday, Bus #42 will be unavailable due to scheduled maintenance. A substitute bus will be provided, but please note it might look different from what you're used to.",
       sender: {
         name: 'Transportation Office',
         role: 'admin',
@@ -161,7 +161,7 @@ const StudentCommunityPage: React.FC = () => {
     {
       id: 'ANN004',
       title: 'Weather Alert: Heavy Snow Expected',
-      content: 'Due to forecast of heavy snow, there might be delays tomorrow morning. We'll send updates if there are any changes to the schedule. Please dress warmly and be careful when boarding.',
+      content: "Due to forecast of heavy snow, there might be delays tomorrow morning. We'll send updates if there are any changes to the schedule. Please dress warmly and be careful when boarding.",
       sender: {
         name: 'Transportation Office',
         role: 'admin',
