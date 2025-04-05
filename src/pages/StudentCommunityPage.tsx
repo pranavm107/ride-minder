@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
@@ -171,6 +172,7 @@ const StudentCommunityPage: React.FC = () => {
     },
   ]);
   
+  // Mock bus mates
   const busMates = [
     { id: 'USR002', name: 'Emma Wilson', avatar: '', status: 'active' },
     { id: 'USR003', name: 'Jacob Taylor', avatar: '', status: 'active' },
@@ -232,6 +234,7 @@ const StudentCommunityPage: React.FC = () => {
     setNewMessage('');
   };
   
+  // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
