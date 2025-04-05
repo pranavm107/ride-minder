@@ -18,6 +18,12 @@ import StudentLogin from "./pages/login/StudentLogin";
 import DriverLogin from "./pages/login/DriverLogin";
 import AdminLogin from "./pages/login/AdminLogin";
 import ForgotPassword from "./pages/login/ForgotPassword";
+import TripHistoryPage from "./pages/TripHistoryPage";
+import StudentAttendancePage from "./pages/StudentAttendancePage";
+import BillUploadsPage from "./pages/BillUploadsPage";
+import DriverRewardsPage from "./pages/DriverRewardsPage";
+import SubstituteHistoryPage from "./pages/SubstituteHistoryPage";
+import CustomerSupportPage from "./pages/CustomerSupportPage";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +50,14 @@ const AnimatedRoutes = () => {
         <Route path="/route-stops" element={<RouteStopsPage />} />
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        
+        {/* New Driver Routes */}
+        <Route path="/trip-history" element={<TripHistoryPage />} />
+        <Route path="/attendance" element={<StudentAttendancePage />} />
+        <Route path="/bill-uploads" element={<BillUploadsPage />} />
+        <Route path="/coins" element={<DriverRewardsPage />} />
+        <Route path="/substitute-history" element={<SubstituteHistoryPage />} />
+        <Route path="/customer-support" element={<CustomerSupportPage />} />
         
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
