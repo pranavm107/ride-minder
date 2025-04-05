@@ -24,6 +24,9 @@ import BillUploadsPage from "./pages/BillUploadsPage";
 import DriverRewardsPage from "./pages/DriverRewardsPage";
 import SubstituteHistoryPage from "./pages/SubstituteHistoryPage";
 import CustomerSupportPage from "./pages/CustomerSupportPage";
+import CameraControlPage from "./pages/CameraControlPage";
+import DriverDocumentsPage from "./pages/DriverDocumentsPage";
+import StudentCommunityPage from "./pages/StudentCommunityPage";
 
 const queryClient = new QueryClient();
 
@@ -51,13 +54,20 @@ const AnimatedRoutes = () => {
         <Route path="/reports" element={<ReportsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         
-        {/* New Driver Routes */}
+        {/* Driver Routes */}
         <Route path="/trip-history" element={<TripHistoryPage />} />
         <Route path="/attendance" element={<StudentAttendancePage />} />
         <Route path="/bill-uploads" element={<BillUploadsPage />} />
         <Route path="/coins" element={<DriverRewardsPage />} />
         <Route path="/substitute-history" element={<SubstituteHistoryPage />} />
         <Route path="/customer-support" element={<CustomerSupportPage />} />
+        
+        {/* Admin Routes */}
+        <Route path="/camera-control" element={<CameraControlPage />} />
+        <Route path="/driver-documents" element={<DriverDocumentsPage />} />
+        
+        {/* Student Routes */}
+        <Route path="/community" element={<StudentCommunityPage />} />
         
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
