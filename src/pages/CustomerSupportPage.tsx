@@ -82,6 +82,7 @@ const CustomerSupportPage = () => {
   const [ticketSubject, setTicketSubject] = useState('');
   const [ticketDescription, setTicketDescription] = useState('');
   const [ticketCategory, setTicketCategory] = useState('technical');
+  const [activeTab, setActiveTab] = useState('faq');
   
   const handleSubmitTicket = (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,7 +127,7 @@ const CustomerSupportPage = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <Tabs defaultValue="faq" className="w-full">
+            <Tabs defaultValue="faq" className="w-full" value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="mb-6">
                 <TabsTrigger value="faq">FAQ</TabsTrigger>
                 <TabsTrigger value="tickets">My Tickets</TabsTrigger>
@@ -172,7 +173,7 @@ const CustomerSupportPage = () => {
                     <h2 className="text-lg font-medium">Support Ticket History</h2>
                     <Button 
                       variant="outline" 
-                      onClick={() => document.querySelector('[data-value="new-ticket"]')?.click()}
+                      onClick={() => setActiveTab('new-ticket')}
                     >
                       New Ticket
                     </Button>

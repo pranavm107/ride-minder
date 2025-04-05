@@ -1,7 +1,15 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { History, CalendarDays, Bus, MapPin, User, Clock, Filter } from 'lucide-react';
+import { 
+  History, 
+  CalendarDays, 
+  Bus, 
+  MapPin, 
+  User, 
+  Clock, 
+  Filter, 
+  Coins 
+} from 'lucide-react';
 import NavBar from '@/components/NavBar';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
