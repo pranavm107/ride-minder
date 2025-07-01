@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -27,6 +26,7 @@ import CustomerSupportPage from "./pages/CustomerSupportPage";
 import CameraControlPage from "./pages/CameraControlPage";
 import DriverDocumentsPage from "./pages/DriverDocumentsPage";
 import StudentCommunityPage from "./pages/StudentCommunityPage";
+import AvailableRidesPage from "./pages/AvailableRidesPage";
 import NavRedirector from "./components/NavRedirector";
 
 const queryClient = new QueryClient();
@@ -70,6 +70,7 @@ const AnimatedRoutes = () => {
         
         {/* Student Routes */}
         <Route path="/community" element={<StudentCommunityPage />} />
+        <Route path="/available-rides" element={<AvailableRidesPage />} />
         
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />

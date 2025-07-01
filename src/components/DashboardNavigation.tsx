@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Camera, Users, MapPin, FileText, Settings, Bell } from 'lucide-react';
+import { Camera, Users, MapPin, FileText, Settings, Bell, Car } from 'lucide-react';
 
 interface NavigationLinkProps {
   to: string;
@@ -66,6 +65,12 @@ const DashboardNavigation: React.FC<DashboardNavigationProps> = ({ userType }) =
       
       case 'student':
         return [
+          {
+            to: '/available-rides',
+            icon: <Car className="h-5 w-5" />,
+            label: 'Available Rides',
+            description: 'Book empty seats in available buses'
+          },
           {
             to: '/community',
             icon: <Users className="h-5 w-5" />,
