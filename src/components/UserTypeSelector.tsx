@@ -14,7 +14,7 @@ const UserTypeSelector = ({ className }: UserTypeProps) => {
       title: 'Student',
       description: 'View bus schedules and track your rides in real-time',
       icon: <User className="h-6 w-6 text-brand-500" />,
-      link: '/login/student',
+      link: '/login',
       color: 'from-blue-50 to-blue-100',
       iconBg: 'bg-blue-100',
       borderColor: 'border-blue-200',

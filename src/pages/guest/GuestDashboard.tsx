@@ -147,7 +147,7 @@ const GuestDashboard = () => {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 p-4">
+      <div className="min-h-screen bg-gradient-to-br from-brand-50 to-emerald-50 p-4">
         <div className="max-w-6xl mx-auto">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
@@ -159,11 +159,11 @@ const GuestDashboard = () => {
                 </Button>
               </Link>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Guest Dashboard</h1>
-                <p className="text-gray-600">Book available cab seats</p>
+                <h1 className="text-2xl font-bold text-foreground">Guest Dashboard</h1>
+                <p className="text-muted-foreground">Book available cab seats</p>
               </div>
             </div>
-            <Badge variant="secondary" className="bg-green-100 text-green-800">
+            <Badge variant="secondary" className="bg-brand-50 text-brand-600">
               Guest User
             </Badge>
           </div>
@@ -172,21 +172,21 @@ const GuestDashboard = () => {
           <Card className="mb-6">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <Bus className="h-5 w-5 text-green-600" />
+                <Bus className="h-5 w-5 text-brand-500" />
                 <span>Available Cabs</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               {loading ? (
                 <div className="text-center py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
-                  <p className="text-gray-600">Loading available cabs...</p>
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500 mx-auto mb-4"></div>
+                  <p className="text-muted-foreground">Loading available cabs...</p>
                 </div>
               ) : availableCabs.length === 0 ? (
                 <div className="text-center py-8">
                   <AlertCircle className="h-12 w-12 mx-auto text-orange-500 mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Available Seats</h3>
-                  <p className="text-gray-600">
+                  <h3 className="text-lg font-medium text-foreground mb-2">No Available Seats</h3>
+                  <p className="text-muted-foreground">
                     All cabs are currently full. Please check back later or contact the transport office.
                   </p>
                 </div>
@@ -203,9 +203,9 @@ const GuestDashboard = () => {
           {/* Info Section */}
           <Card>
             <CardContent className="pt-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-muted-foreground">
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Booking Rules</h4>
+                  <h4 className="font-medium text-foreground mb-2">Booking Rules</h4>
                   <ul className="space-y-1">
                     <li>• One seat per booking</li>
                     <li>• Real-time availability</li>
@@ -213,7 +213,7 @@ const GuestDashboard = () => {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Payment</h4>
+                  <h4 className="font-medium text-foreground mb-2">Payment</h4>
                   <ul className="space-y-1">
                     <li>• Pay on boarding</li>
                     <li>• Cash or UPI accepted</li>
@@ -221,7 +221,7 @@ const GuestDashboard = () => {
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-2">Support</h4>
+                  <h4 className="font-medium text-foreground mb-2">Support</h4>
                   <ul className="space-y-1">
                     <li>• Transport Office: 1234</li>
                     <li>• Emergency: 9999</li>

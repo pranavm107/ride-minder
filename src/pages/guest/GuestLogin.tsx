@@ -61,7 +61,7 @@ const GuestLogin = () => {
 
   return (
     <PageTransition>
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-brand-50 to-emerald-50 flex items-center justify-center p-4">
         <div className="max-w-md w-full">
           <div className="flex items-center mb-6">
             <Link to="/">
@@ -74,21 +74,21 @@ const GuestLogin = () => {
 
           <Card className="shadow-lg">
             <CardHeader className="text-center">
-              <div className="mx-auto h-12 w-12 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                <Bus className="h-6 w-6 text-green-600" />
+              <div className="mx-auto h-12 w-12 rounded-full bg-green-50 flex items-center justify-center mb-4">
+                <Bus className="h-6 w-6 text-brand-500" />
               </div>
-              <CardTitle className="text-2xl text-gray-900">Guest Login</CardTitle>
-              <p className="text-gray-600">Book available cab seats</p>
+              <CardTitle className="text-2xl text-foreground">Guest Login</CardTitle>
+              <p className="text-muted-foreground">Book available cab seats</p>
             </CardHeader>
 
             <CardContent>
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-foreground">
                     Register Number
                   </label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       type="text"
                       name="registerNumber"
@@ -102,11 +102,11 @@ const GuestLogin = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-foreground">
                     Password
                   </label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       type="password"
                       name="password"
@@ -121,7 +121,7 @@ const GuestLogin = () => {
 
                 <Button 
                   type="submit" 
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full"
                   disabled={loading}
                 >
                   {loading ? "Logging in..." : "Login as Guest"}
@@ -129,9 +129,9 @@ const GuestLogin = () => {
               </form>
 
               <div className="mt-4 text-center">
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Don't have a guest account?{' '}
-                  <button className="text-green-600 hover:underline">
+                  <button className="text-brand-500 hover:underline">
                     Contact Admin
                   </button>
                 </p>

@@ -49,11 +49,11 @@ const AvailableCabsList = ({ cabs, onBookSeat, loading }: AvailableCabsListProps
               <div className="flex-1">
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                      <Bus className="h-5 w-5 text-green-600" />
+                    <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                      <Bus className="h-5 w-5 text-brand-500" />
                       {cab.routeName}
                     </h3>
-                    <p className="text-gray-600 flex items-center gap-1 mt-1">
+                    <p className="text-muted-foreground flex items-center gap-1 mt-1">
                       <User className="h-4 w-4" />
                       Driver: {cab.driverName}
                     </p>
@@ -66,25 +66,25 @@ const AvailableCabsList = ({ cabs, onBookSeat, loading }: AvailableCabsListProps
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm">
                   <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4 text-gray-500" />
+                    <Users className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <span className="font-medium text-green-600">{cab.availableSeats}</span>
-                      <span className="text-gray-500"> / {cab.totalSeats} seats</span>
+                      <span className="font-medium text-brand-500">{cab.availableSeats}</span>
+                      <span className="text-muted-foreground"> / {cab.totalSeats} seats</span>
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4 text-gray-500" />
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <span className="text-gray-700">{cab.currentLocation}</span>
-                      <div className="text-gray-500">→ {cab.nextStop}</div>
+                      <span className="text-foreground">{cab.currentLocation}</span>
+                      <div className="text-muted-foreground">→ {cab.nextStop}</div>
                     </div>
                   </div>
                   
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-gray-500" />
+                    <Clock className="h-4 w-4 text-muted-foreground" />
                     <div>
-                      <span className="text-gray-700">ETA: {cab.estimatedArrival}</span>
+                      <span className="text-foreground">ETA: {cab.estimatedArrival}</span>
                     </div>
                   </div>
                 </div>
@@ -94,11 +94,10 @@ const AvailableCabsList = ({ cabs, onBookSeat, loading }: AvailableCabsListProps
                 <Button
                   onClick={() => onBookSeat(cab.id)}
                   disabled={loading || cab.availableSeats === 0}
-                  className="bg-green-600 hover:bg-green-700"
                 >
                   {loading ? "Booking..." : "Book Seat"}
                 </Button>
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-muted-foreground">
                   ₹25 per ride
                 </span>
               </div>
