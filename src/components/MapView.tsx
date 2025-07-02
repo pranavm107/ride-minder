@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 type MapViewProps = {
   className?: string;
   isActive?: boolean;
-  userType: 'student' | 'driver' | 'admin' | 'parent';
+  userType: 'student' | 'driver' | 'admin';
   mode?: 'preview' | 'navigation';
   fullView?: boolean;
   height?: string;
@@ -129,7 +129,6 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
             {userType === 'student' && 'Your Bus Tracker'}
             {userType === 'driver' && (mode === 'navigation' ? 'Turn-by-Turn Navigation' : 'Route Navigation')}
             {userType === 'admin' && 'Fleet Overview'}
-            {userType === 'parent' && 'Child\'s Bus Tracker'}
           </h3>
         </div>
         <div className="flex items-center gap-2">
@@ -235,7 +234,7 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
                   </div>
                 ))}
                 
-                {(userType === 'student' || userType === 'parent') && (
+                {userType === 'student' && (
                   <div 
                     className="absolute left-1/2 top-3/4 -translate-x-1/2 -translate-y-1/2"
                   >
@@ -243,7 +242,7 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
                       <div className="h-3 w-3 bg-white rounded-full"></div>
                     </div>
                     <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-medium px-2 py-1 bg-white/80 backdrop-blur-sm rounded-full shadow-sm">
-                      {userType === 'parent' ? 'Child\'s location' : 'You are here'}
+                      You are here
                     </div>
                   </div>
                 )}
@@ -276,8 +275,7 @@ const MapView = ({ className, isActive = true, userType, mode = 'preview', fullV
         <div className="grid grid-cols-2 gap-4">
           <button className="p-2 rounded-lg bg-brand-50 text-brand-600 text-sm font-medium hover:bg-brand-100 transition-colors flex items-center justify-center gap-1">
             <Navigation size={16} />
-            {userType === 'admin' ? 'View All Routes' : 
-             userType === 'parent' ? 'Track Child' : 'Navigate'}
+            {userType === 'admin' ? 'View All Routes' : 'Navigate'}
           </button>
           <button className="p-2 rounded-lg bg-gray-50 text-gray-600 text-sm font-medium hover:bg-gray-100 transition-colors flex items-center justify-center gap-1">
             <MapPin size={16} />

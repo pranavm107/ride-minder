@@ -179,7 +179,7 @@ const AvailableRidesPage = () => {
         <SeatRequestDialog
           open={dialogOpen}
           onOpenChange={setDialogOpen}
-          onSubmit={(studentInfo: { name: string; email: string }) => {
+          onSubmit={(studentInfo) => {
             if (selectedBusId) {
               handleRequestSeat(selectedBusId, studentInfo);
             }

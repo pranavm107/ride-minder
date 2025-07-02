@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -9,7 +8,6 @@ import Index from "./pages/Index";
 import StudentDashboard from "./pages/StudentDashboard";
 import DriverDashboard from "./pages/DriverDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
-import ParentDashboard from "./pages/ParentDashboard";
 import ReceiptPage from "./pages/ReceiptPage";
 import NotFound from "./pages/NotFound";
 import RouteStopsPage from "./pages/RouteStopsPage";
@@ -18,7 +16,6 @@ import SettingsPage from "./pages/SettingsPage";
 import StudentLogin from "./pages/login/StudentLogin";
 import DriverLogin from "./pages/login/DriverLogin";
 import AdminLogin from "./pages/login/AdminLogin";
-import ParentLogin from "./pages/login/ParentLogin";
 import ForgotPassword from "./pages/login/ForgotPassword";
 import TripHistoryPage from "./pages/TripHistoryPage";
 import StudentAttendancePage from "./pages/StudentAttendancePage";
@@ -48,14 +45,12 @@ const AnimatedRoutes = () => {
         <Route path="/login/student" element={<StudentLogin />} />
         <Route path="/login/driver" element={<DriverLogin />} />
         <Route path="/login/admin" element={<AdminLogin />} />
-        <Route path="/login/parent" element={<ParentLogin />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         
         {/* Dashboard Routes */}
         <Route path="/student" element={<StudentDashboard />} />
         <Route path="/driver" element={<DriverDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
-        <Route path="/parent" element={<ParentDashboard />} />
         <Route path="/receipt" element={<ReceiptPage />} />
         <Route path="/route-stops" element={<RouteStopsPage />} />
         <Route path="/reports" element={<ReportsPage />} />
