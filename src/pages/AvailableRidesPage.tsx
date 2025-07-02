@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { ArrowLeft, MapPin, Users, Clock, Bus as BusIcon } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -16,8 +15,18 @@ const AvailableRidesPage = () => {
   const [selectedBusId, setSelectedBusId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  const handleRequestSeat = async (busId: string, studentInfo: { name: string; email: string }) => {
-    const result = await requestSeat(busId, studentInfo);
+  const handleRequestSeat = async (busId: string, studentInfo: { name?: string; email?: string }) => {
+    // Ensure required fields are present
+    if (!studentInfo.name || !studentInfo.email) {
+      toast({
+        title: "Missing Information",
+        description: "Please provide both name and email to request a seat.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const result = await requestSeat(busId, { name: studentInfo.name, email: studentInfo.email });
     
     if (result.success) {
       toast({

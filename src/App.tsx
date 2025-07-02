@@ -17,6 +17,9 @@ import StudentLogin from "./pages/login/StudentLogin";
 import DriverLogin from "./pages/login/DriverLogin";
 import AdminLogin from "./pages/login/AdminLogin";
 import ForgotPassword from "./pages/login/ForgotPassword";
+import LoginSelector from "./pages/login/LoginSelector";
+import GuestLogin from "./pages/guest/GuestLogin";
+import GuestDashboard from "./pages/guest/GuestDashboard";
 import TripHistoryPage from "./pages/TripHistoryPage";
 import StudentAttendancePage from "./pages/StudentAttendancePage";
 import BillUploadsPage from "./pages/BillUploadsPage";
@@ -42,10 +45,15 @@ const AnimatedRoutes = () => {
         <Route path="/" element={<Index />} />
         
         {/* Authentication Routes */}
+        <Route path="/login" element={<LoginSelector />} />
         <Route path="/login/student" element={<StudentLogin />} />
         <Route path="/login/driver" element={<DriverLogin />} />
         <Route path="/login/admin" element={<AdminLogin />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
+        
+        {/* Guest Routes */}
+        <Route path="/guest/login" element={<GuestLogin />} />
+        <Route path="/guest/dashboard" element={<GuestDashboard />} />
         
         {/* Dashboard Routes */}
         <Route path="/student" element={<StudentDashboard />} />
