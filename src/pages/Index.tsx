@@ -31,7 +31,7 @@ const Index = () => {
   
   return (
     <div className="min-h-screen">
-      <NavBar />
+      <NavBar userType="student" />
       
       <main>
         <Hero />
