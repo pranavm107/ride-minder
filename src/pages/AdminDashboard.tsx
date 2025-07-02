@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Users, Bus, MapPin, AlertTriangle, TrendingUp, Calendar, Settings, BarChart3 } from 'lucide-react';
 import NavBar from '@/components/NavBar';
@@ -15,28 +14,32 @@ const AdminDashboard = () => {
     {
       title: 'Total Students',
       value: '2,847',
-      change: '+12%',
+      trend: 12,
+      trendLabel: 'from last month',
       icon: <Users className="h-6 w-6" />,
       color: 'bg-blue-500'
     },
     {
       title: 'Active Buses',
       value: '24',
-      change: '+2',
+      trend: 8,
+      trendLabel: 'new buses added',
       icon: <Bus className="h-6 w-6" />,
       color: 'bg-green-500'
     },
     {
       title: 'Routes',
       value: '18',
-      change: '0',
+      trend: 0,
+      trendLabel: 'no change',
       icon: <MapPin className="h-6 w-6" />,
       color: 'bg-purple-500'
     },
     {
       title: 'Active Alerts',
       value: '3',
-      change: '-2',
+      trend: -40,
+      trendLabel: 'resolved this week',
       icon: <AlertTriangle className="h-6 w-6" />,
       color: 'bg-red-500'
     }
@@ -114,9 +117,10 @@ const AdminDashboard = () => {
                   key={index}
                   title={stat.title}
                   value={stat.value}
-                  change={stat.change}
+                  trend={stat.trend}
+                  trendLabel={stat.trendLabel}
                   icon={stat.icon}
-                  color={stat.color}
+                  className={stat.color}
                 />
               ))}
             </div>
