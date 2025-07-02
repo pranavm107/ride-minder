@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
@@ -28,8 +27,10 @@ const studentAttendance = [
   { id: '2023005', name: 'Ethan Davis', grade: '10th', stop: 'Pine Lane', morningStatus: 'Absent', afternoonStatus: 'Absent' },
 ];
 
+type TripStatus = 'inactive' | 'active';
+
 const DriverDashboard = () => {
-  const [currentTripStatus, setCurrentTripStatus] = useState<'inactive' | 'active'>('inactive');
+  const [currentTripStatus, setCurrentTripStatus] = useState<TripStatus>('inactive');
   const [showLeaveDialog, setShowLeaveDialog] = useState<'regular' | 'emergency' | null>(null);
   const [showComplaintDialog, setShowComplaintDialog] = useState<boolean>(false);
   const [showStartAnimation, setShowStartAnimation] = useState<boolean>(false);
@@ -119,6 +120,9 @@ const DriverDashboard = () => {
     });
   };
 
+  const isActiveTrip = currentTripStatus === 'active';
+  const isInactiveTrip = currentTripStatus === 'inactive';
+
   return (
     <div className="min-h-screen bg-gray-50">
       <NavBar userType="driver" />
@@ -198,16 +202,16 @@ const DriverDashboard = () => {
             <div className="flex-shrink-0 min-w-[280px]">
               <DashboardCard 
                 title="Quick Action"
-                value={currentTripStatus === 'inactive' ? 'Begin Trip' : 'End Trip'}
-                description={currentTripStatus === 'inactive' ? 'Start your route' : 'Complete the trip'}
-                icon={currentTripStatus === 'inactive' ? 
+                value={isInactiveTrip ? 'Begin Trip' : 'End Trip'}
+                description={isInactiveTrip ? 'Start your route' : 'Complete the trip'}
+                icon={isInactiveTrip ? 
                   <Play className="h-5 w-5 text-green-600" /> : 
                   <Square className="h-5 w-5 text-red-600" />
                 }
                 className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
-                actionText={currentTripStatus === 'inactive' ? 'Start Trip' : 'End Trip'}
-                actionOnClick={currentTripStatus === 'inactive' ? handleStartTrip : handleEndTrip}
-                actionVariant={currentTripStatus === 'inactive' ? 'default' : 'destructive'}
+                actionText={isInactiveTrip ? 'Start Trip' : 'End Trip'}
+                actionOnClick={isInactiveTrip ? handleStartTrip : handleEndTrip}
+                actionVariant={isInactiveTrip ? 'default' : 'destructive'}
               />
             </div>
             
@@ -226,7 +230,7 @@ const DriverDashboard = () => {
         </div>
 
         {/* Trip Banner */}
-        {currentTripStatus === 'inactive' && (
+        {isInactiveTrip && (
           <div className="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 rounded-xl p-6 md:p-8 shadow-lg text-white mb-6 relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-r from-blue-600/90 to-indigo-700/90"></div>
             <div className="relative z-10">
@@ -246,7 +250,7 @@ const DriverDashboard = () => {
                   Start Trip
                 </Button>
               </div>
-              {currentTripStatus === 'active' && (
+              {isActiveTrip && (
                 <div className="flex flex-wrap items-center gap-3 mt-4">
                   <Button 
                     variant="outline" 
@@ -289,7 +293,7 @@ const DriverDashboard = () => {
                 </div>
               </div>
               
-              {currentTripStatus === 'active' && (
+              {isActiveTrip && (
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800 border border-green-200">
                     <div className="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
@@ -313,14 +317,14 @@ const DriverDashboard = () => {
             <div className="h-[400px] md:h-[500px]">
               <MapView 
                 userType="driver" 
-                mode={currentTripStatus === 'active' ? "navigation" : "preview"} 
+                mode={isActiveTrip ? "navigation" : "preview"} 
                 fullView={showFullMap}
                 height="100%"
               />
             </div>
           </div>
           
-          {currentTripStatus === 'active' && (
+          {isActiveTrip && (
             <div className="p-6 border-t border-gray-100 bg-gray-50">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
