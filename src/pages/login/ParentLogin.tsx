@@ -7,19 +7,25 @@ import LoginForm from '@/components/auth/LoginForm';
 const ParentLogin = () => {
   const navigate = useNavigate();
 
-  const handleLogin = (email: string, password: string) => {
+  const handleLogin = (values: { email: string; password: string }) => {
     // Mock authentication - in real app, this would validate against Supabase
-    console.log('Parent login:', { email, password });
+    console.log('Parent login:', values);
     navigate('/parent');
   };
 
   return (
-    <AuthLayout userType="parent">
+    <AuthLayout 
+      heading="Parent Portal Login"
+      subheading="Track your child's bus journey and stay connected with their daily commute"
+      dashboardType="student"
+      quote={{
+        text: "Stay connected with your child's journey, every step of the way.",
+        author: "RideMinder Parent Portal"
+      }}
+    >
       <LoginForm
-        userType="parent"
-        onLogin={handleLogin}
-        title="Parent Portal Login"
-        subtitle="Track your child's bus journey and stay connected with their daily commute"
+        dashboardType="student"
+        onSuccess={handleLogin}
       />
     </AuthLayout>
   );

@@ -112,7 +112,7 @@ const ParentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-indigo-50">
-      <NavBar userType="parent" />
+      <NavBar userType="student" />
       
       <main className="container mx-auto px-4 py-6 pt-20">
         {/* Header Section */}
