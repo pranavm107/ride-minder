@@ -21,11 +21,16 @@ import {
   Users,
   Settings,
   Filter,
-  AlertTriangle
+  AlertTriangle,
+  RefreshCw,
+  UserX,
+  Send,
+  Lock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Sidebar,
   SidebarContent,
@@ -109,6 +114,97 @@ const AdminDashboard = () => {
     { id: 5, title: 'Maintenance Costs', type: 'maintenance', period: 'Q3 2023', status: 'generated', date: '2023-10-10' },
   ];
 
+  // Live Cab Bookings Data
+  const liveCabBookings = [
+    { 
+      id: 1, 
+      cabNumber: 'CAB-001', 
+      routeName: 'North Campus Express',
+      totalSeats: 30, 
+      assignedSeats: 18, 
+      guestSeats: 4, 
+      availableSeats: 8,
+      lastUpdate: '2 min ago',
+      status: 'active' 
+    },
+    { 
+      id: 2, 
+      cabNumber: 'CAB-002', 
+      routeName: 'South Campus Loop',
+      totalSeats: 25, 
+      assignedSeats: 15, 
+      guestSeats: 8, 
+      availableSeats: 2,
+      lastUpdate: '1 min ago',
+      status: 'active' 
+    },
+    { 
+      id: 3, 
+      cabNumber: 'CAB-003', 
+      routeName: 'Downtown Express',
+      totalSeats: 35, 
+      assignedSeats: 12, 
+      guestSeats: 0, 
+      availableSeats: 23,
+      lastUpdate: '5 min ago',
+      status: 'active' 
+    },
+    { 
+      id: 4, 
+      cabNumber: 'CAB-004', 
+      routeName: 'West Campus',
+      totalSeats: 28, 
+      assignedSeats: 0, 
+      guestSeats: 0, 
+      availableSeats: 28,
+      lastUpdate: '1 hr ago',
+      status: 'inactive' 
+    },
+  ];
+
+  const guestBookings = [
+    {
+      id: 1,
+      studentName: 'Rahul Kumar',
+      registerNumber: '21CS1034',
+      cabNumber: 'CAB-001',
+      bookingTime: '08:15 AM',
+      rideType: 'morning',
+      status: 'booked',
+      contactNumber: '+91 98765 43210'
+    },
+    {
+      id: 2,
+      studentName: 'Priya Sharma',
+      registerNumber: '21EC2045',
+      cabNumber: 'CAB-002',
+      bookingTime: '08:30 AM',
+      rideType: 'morning',
+      status: 'booked',
+      contactNumber: '+91 87654 32109'
+    },
+    {
+      id: 3,
+      studentName: 'Arjun Mehta',
+      registerNumber: '21ME3056',
+      cabNumber: 'CAB-002',
+      bookingTime: '02:45 PM',
+      rideType: 'evening',
+      status: 'completed',
+      contactNumber: '+91 76543 21098'
+    },
+    {
+      id: 4,
+      studentName: 'Sneha Patel',
+      registerNumber: '21IT4067',
+      cabNumber: 'CAB-001',
+      bookingTime: '03:15 PM',
+      rideType: 'evening',
+      status: 'booked',
+      contactNumber: '+91 65432 10987'
+    },
+  ];
+
   // Sidebar navigation items
   const sidebarItems = [
     { title: 'Overview', icon: BarChart, action: () => setActiveTab('overview') },
@@ -189,6 +285,26 @@ const AdminDashboard = () => {
       toast.success(`Downloading report #${reportId}`);
     } else if (action === 'generate') {
       toast.info(`Generating report #${reportId}`);
+    }
+  };
+
+  const handleCabAction = (cabId: number, action: string) => {
+    if (action === 'lock') {
+      toast.success(`Cab #${cabId} locked for further bookings`);
+    } else if (action === 'notify-driver') {
+      toast.info(`Notification sent to driver of Cab #${cabId}`);
+    } else if (action === 'view-details') {
+      toast.info(`Viewing detailed info for Cab #${cabId}`);
+    }
+  };
+
+  const handleGuestBookingAction = (bookingId: number, action: string) => {
+    if (action === 'cancel') {
+      toast.success(`Guest booking #${bookingId} cancelled successfully`);
+    } else if (action === 'notify-driver') {
+      toast.info(`Driver notified about booking #${bookingId}`);
+    } else if (action === 'contact-student') {
+      toast.info(`Contacting student for booking #${bookingId}`);
     }
   };
   
@@ -521,6 +637,206 @@ const AdminDashboard = () => {
                         </div>
                       </div>
                     )}
+                  </div>
+                  
+                  {/* Live Cab Bookings Section */}
+                  <div className="bg-white rounded-xl border border-gray-100 shadow-sm mb-8 overflow-hidden">
+                    <div className="flex items-center justify-between p-6 border-b border-gray-100">
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Live Cab Bookings (Guest + Assigned)</h3>
+                        <p className="text-sm text-gray-600 mt-1">Real-time booking status and seat availability</p>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex items-center gap-2"
+                        onClick={() => toast.success("Data refreshed")}
+                      >
+                        <RefreshCw size={14} />
+                        Refresh
+                      </Button>
+                    </div>
+                    
+                    {/* Cab Status Cards */}
+                    <div className="p-6 border-b border-gray-100">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {liveCabBookings.map((cab) => (
+                          <div key={cab.id} className="bg-gray-50 rounded-lg p-4 border">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <Bus size={16} className="text-brand-500" />
+                                <span className="font-medium text-gray-900">{cab.cabNumber}</span>
+                              </div>
+                              <Badge 
+                                variant={cab.status === 'active' ? 'default' : 'secondary'}
+                                className={cab.status === 'active' ? 'bg-green-100 text-green-700' : ''}
+                              >
+                                {cab.status}
+                              </Badge>
+                            </div>
+                            
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Route:</span>
+                                <span className="font-medium">{cab.routeName}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Total Seats:</span>
+                                <span className="font-medium">{cab.totalSeats}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Assigned:</span>
+                                <span className="font-medium text-blue-600">{cab.assignedSeats}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Guest:</span>
+                                <span className="font-medium text-green-600">{cab.guestSeats}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-gray-600">Available:</span>
+                                <span className={`font-medium ${cab.availableSeats <= 5 ? 'text-red-600' : 'text-gray-900'}`}>
+                                  {cab.availableSeats}
+                                </span>
+                              </div>
+                            </div>
+                            
+                            <div className="mt-4 pt-3 border-t border-gray-200">
+                              <div className="flex justify-between items-center text-xs text-gray-500 mb-2">
+                                <span>Last updated: {cab.lastUpdate}</span>
+                              </div>
+                              <div className="flex gap-1">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex-1 text-xs h-7"
+                                  onClick={() => handleCabAction(cab.id, 'view-details')}
+                                >
+                                  View
+                                </Button>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex-1 text-xs h-7"
+                                  onClick={() => handleCabAction(cab.id, 'lock')}
+                                  disabled={cab.status === 'inactive'}
+                                >
+                                  <Lock size={12} className="mr-1" />
+                                  Lock
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Guest Booking Details Table */}
+                    <div className="p-6">
+                      <div className="flex items-center justify-between mb-4">
+                        <h4 className="font-medium text-gray-900">Guest Booking Details</h4>
+                        <div className="flex gap-2">
+                          <Button variant="outline" size="sm">
+                            <Filter size={14} className="mr-2" />
+                            Filter
+                          </Button>
+                          <Button variant="outline" size="sm">
+                            Export
+                          </Button>
+                        </div>
+                      </div>
+                      
+                      <div className="rounded-md border overflow-hidden">
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-gray-50">
+                              <TableHead className="font-medium">Student Name</TableHead>
+                              <TableHead className="font-medium">Register No.</TableHead>
+                              <TableHead className="font-medium">Cab Number</TableHead>
+                              <TableHead className="font-medium">Booking Time</TableHead>
+                              <TableHead className="font-medium">Ride Type</TableHead>
+                              <TableHead className="font-medium">Status</TableHead>
+                              <TableHead className="font-medium">Actions</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {guestBookings.map((booking) => (
+                              <TableRow key={booking.id} className="hover:bg-gray-50">
+                                <TableCell className="font-medium">
+                                  <div>
+                                    <div>{booking.studentName}</div>
+                                    <div className="text-xs text-gray-500">{booking.contactNumber}</div>
+                                  </div>
+                                </TableCell>
+                                <TableCell>{booking.registerNumber}</TableCell>
+                                <TableCell>
+                                  <div className="flex items-center gap-2">
+                                    <Bus size={14} className="text-brand-500" />
+                                    {booking.cabNumber}
+                                  </div>
+                                </TableCell>
+                                <TableCell>{booking.bookingTime}</TableCell>
+                                <TableCell>
+                                  <Badge variant="outline" className={
+                                    booking.rideType === 'morning' 
+                                      ? 'border-blue-200 text-blue-700 bg-blue-50' 
+                                      : 'border-orange-200 text-orange-700 bg-orange-50'
+                                  }>
+                                    {booking.rideType}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge 
+                                    variant={booking.status === 'completed' ? 'default' : 'secondary'}
+                                    className={
+                                      booking.status === 'booked' 
+                                        ? 'bg-green-100 text-green-700' 
+                                        : booking.status === 'completed'
+                                        ? 'bg-blue-100 text-blue-700'
+                                        : 'bg-red-100 text-red-700'
+                                    }
+                                  >
+                                    {booking.status}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <div className="flex gap-1">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0"
+                                      onClick={() => handleGuestBookingAction(booking.id, 'contact-student')}
+                                      title="Contact Student"
+                                    >
+                                      <Send size={12} />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-8 w-8 p-0"
+                                      onClick={() => handleGuestBookingAction(booking.id, 'notify-driver')}
+                                      title="Notify Driver"
+                                    >
+                                      <Bell size={12} />
+                                    </Button>
+                                    {booking.status === 'booked' && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-8 w-8 p-0 text-red-600 hover:text-red-700"
+                                        onClick={() => handleGuestBookingAction(booking.id, 'cancel')}
+                                        title="Cancel Booking"
+                                      >
+                                        <UserX size={12} />
+                                      </Button>
+                                    )}
+                                  </div>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </div>
                   </div>
                   
                   {/* Analytics Preview */}
