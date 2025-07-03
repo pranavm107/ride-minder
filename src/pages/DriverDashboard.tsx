@@ -1,18 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
-import MapView from '@/components/MapView';
-import DashboardCard from '@/components/DashboardCard';
 import TripHistory from '@/components/TripHistory';
 import LeaveApplication from '@/components/LeaveApplication';
 import ComplaintBox from '@/components/ComplaintBox';
+import StopsPage from '@/components/StopsPage';
+import DriverGreeting from '@/components/driver/DriverGreeting';
+import ActionSummaryCards from '@/components/driver/ActionSummaryCards';
+import TripBanner from '@/components/driver/TripBanner';
+import LiveRouteTracking from '@/components/driver/LiveRouteTracking';
+import TripStatistics from '@/components/driver/TripStatistics';
 import { useToast } from '@/hooks/use-toast';
 import { toast } from 'sonner';
-import StopsPage from '@/components/StopsPage';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Clock, Calendar, MapPin, Bell, FileText, Home, MapIcon, BarChart3, Settings, AlertTriangle, CheckCircle2, MoreVertical, AlertCircle, Clock5 } from 'lucide-react';
+import { CheckCircle2, MoreVertical, Calendar, AlertTriangle, MapPin, FileText } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import Bus from '@/components/ui/Bus';
@@ -151,340 +153,199 @@ const DriverDashboard = () => {
         </div>
       )}
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 gap-6">
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <div className="flex items-center justify-between">
-              <div className="flex flex-col">
-                <h1 className="text-2xl font-semibold text-gray-800">Hello, Michael</h1>
-                <p className="text-gray-500 mt-1">Thursday, October 12, 2023</p>
-              </div>
-              <DriverMenuBar />
+      <main className="container mx-auto px-4 py-8 space-y-6">
+        {/* Greeting Section */}
+        <div className="flex items-center justify-between">
+          <DriverGreeting 
+            driverName="Michael" 
+            currentDate="Thursday, October 12, 2023" 
+          />
+          <DriverMenuBar />
+        </div>
+          
+        {/* Trip Banner */}
+        <TripBanner 
+          currentTripStatus={currentTripStatus}
+          onStartTrip={handleStartTrip}
+        />
+
+        {/* Action Summary Cards */}
+        {!showFullMap && (
+          <ActionSummaryCards 
+            currentTripStatus={currentTripStatus}
+            onStartTrip={handleStartTrip}
+            onEndTrip={handleEndTrip}
+            onViewStops={() => setShowStopsPage(true)}
+          />
+        )}
+          
+        {/* Live Route Tracking */}
+        <div ref={mapRef}>
+          <LiveRouteTracking 
+            currentTripStatus={currentTripStatus}
+            showFullMap={showFullMap}
+            onToggleFullMap={() => setShowFullMap(!showFullMap)}
+            onNotifyDelay={handleNotifyDelay}
+            onSendSOS={handleSendSOS}
+            onEndTrip={handleEndTrip}
+          />
+        </div>
+          
+        {/* Trip Statistics */}
+        <TripStatistics 
+          currentTripStatus={currentTripStatus}
+          showFullMap={showFullMap}
+        />
+
+        {/* Trip In Progress Card */}
+        {!showFullMap && currentTripStatus === 'active' && (
+          <div className="bg-card rounded-xl p-6 shadow-sm border">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-medium">Trip In Progress</h2>
+              <Button onClick={() => setShowFullMap(true)} variant="outline" size="sm">
+                Full Map View
+              </Button>
             </div>
+            <p className="text-muted-foreground">Your trip on Route #248 is currently active.</p>
           </div>
-          
-          {isMobile && currentTripStatus === 'inactive' && (
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <Button 
-                className="w-full bg-green-600 hover:bg-green-700 text-white font-medium"
-                onClick={handleStartTrip}
-              >
-                <MapIcon size={18} className="mr-2" /> Start Trip
-              </Button>
-            </div>
-          )}
-          
-          {isMobile && currentTripStatus === 'active' && (
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <Button 
-                variant="destructive"
-                className="w-full font-medium"
-                onClick={handleEndTrip}
-              >
-                <Clock size={18} className="mr-2" /> End Trip
-              </Button>
-            </div>
-          )}
-          
-          {currentTripStatus === 'inactive' && (
-            <div className="bg-gradient-to-r from-brand-500 to-indigo-600 rounded-xl p-8 shadow-md text-white">
-              <div className="flex flex-col md:flex-row justify-between items-center">
-                <div className="mb-6 md:mb-0">
-                  <h2 className="text-2xl font-bold mb-2">Ready to Start Your Trip?</h2>
-                  <p className="text-white/90 max-w-md">
-                    Start your trip to begin navigation and track student attendance on Route #248.
-                  </p>
-                </div>
+        )}
+
+        {/* Additional Actions and Trip History */}
+        {!showFullMap && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-card rounded-xl p-6 shadow-sm border">
+              <h2 className="text-lg font-medium mb-4">Quick Actions</h2>
+              <div className="flex space-x-3">
                 <Button 
-                  size="lg" 
-                  className="bg-white text-brand-600 hover:bg-white/90 w-full md:w-auto px-8"
-                  onClick={handleStartTrip}
+                  onClick={() => setShowLeaveDialog('emergency')} 
+                  variant="outline" 
+                  className="flex-1 border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700"
                 >
-                  <MapIcon size={20} className="mr-2" /> Start Trip
+                  <AlertTriangle size={16} className="mr-2" /> Emergency
+                </Button>
+                <Button 
+                  onClick={() => setShowComplaintDialog(true)} 
+                  variant="outline" 
+                  className="flex-1"
+                >
+                  <FileText size={16} className="mr-2" /> Report Issue
                 </Button>
               </div>
-            </div>
-          )}
-          
-          {!showFullMap && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              <DashboardCard 
-                title="Active Route"
-                value="Route #248"
-                description="South Campus"
-                icon={<MapPin className="h-5 w-5 text-brand-500" />}
-                actionText="View Route"
-                actionLink="#"
-              />
-              
-              <DashboardCard 
-                title="Next Stop"
-                value="Stop #14"
-                description="Arriving in 5 mins"
-                icon={<MapPin className="h-5 w-5 text-amber-500" />}
-                actionText="See Details"
-                actionLink="#"
-                actionOnClick={() => setShowStopsPage(true)}
-              />
-              
-              <DashboardCard 
-                title="Quick Actions"
-                value={currentTripStatus === 'inactive' ? 'Begin Trip' : 'End Trip'}
-                description={currentTripStatus === 'inactive' ? 'Start your route' : 'Complete the trip'}
-                icon={<Clock className="h-5 w-5 text-indigo-500" />}
-                actionText={currentTripStatus === 'inactive' ? 'Start Trip' : 'End Trip'}
-                actionOnClick={currentTripStatus === 'inactive' ? handleStartTrip : handleEndTrip}
-                actionVariant={currentTripStatus === 'inactive' ? 'default' : 'destructive'}
-              />
-              
-              <DashboardCard 
-                title="Announcements"
-                value="2 Unread"
-                description="School closures"
-                icon={<Bell className="h-5 w-5 text-red-500" />}
-                actionText="View All"
-                actionLink="#"
-              />
-            </div>
-          )}
-          
-          <div 
-            ref={mapRef}
-            className={cn(
-              "bg-white rounded-xl p-4 shadow-sm border border-gray-100 overflow-hidden transition-all duration-500",
-              showFullMap ? "lg:col-span-3" : "lg:col-span-2"
-            )}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-medium">Live Route Tracking</h2>
-              
-              {currentTripStatus === 'active' && (
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                    <span className="w-2 h-2 bg-green-500 rounded-full mr-1.5 animate-pulse"></span>
-                    Trip Active
-                  </span>
-                  
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="text-amber-600 border-amber-200 hover:bg-amber-50"
-                    onClick={handleNotifyDelay}
-                  >
-                    <Clock5 size={16} className="mr-1" /> Delay 10 min
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="text-red-600 border-red-200 hover:bg-red-50"
-                    onClick={handleSendSOS}
-                  >
-                    <AlertCircle size={16} className="mr-1" /> SOS
-                  </Button>
-                  
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="text-red-600 border-red-200 hover:bg-red-50"
-                    onClick={handleEndTrip}
-                  >
-                    End Trip
-                  </Button>
-                  
-                  <div className="relative">
-                    <Sheet>
-                      <SheetTrigger asChild>
-                        <Button size="icon" variant="ghost">
-                          <MoreVertical size={18} />
-                        </Button>
-                      </SheetTrigger>
-                      <SheetContent side="right" className="w-[300px]">
-                        <div className="py-4">
-                          <h3 className="text-lg font-medium mb-4">Options</h3>
-                          <div className="space-y-4">
-                            <Button 
-                              onClick={() => setShowStopsPage(true)}
-                              variant="outline" 
-                              className="w-full justify-start"
-                            >
-                              <MapPin className="mr-2 h-4 w-4" /> View Stops
-                            </Button>
-                            <Button onClick={() => setShowComplaintDialog(true)} variant="outline" className="w-full justify-start">
-                              <AlertTriangle className="mr-2 h-4 w-4" /> Report Issue
-                            </Button>
-                            <Button onClick={() => setShowLeaveDialog('regular')} variant="outline" className="w-full justify-start">
-                              <Calendar className="mr-2 h-4 w-4" /> Apply for Leave
-                            </Button>
-                            <Button onClick={() => setShowLeaveDialog('emergency')} variant="outline" className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50">
-                              <AlertTriangle className="mr-2 h-4 w-4" /> Emergency Leave
-                            </Button>
-                          </div>
-                        </div>
-                      </SheetContent>
-                    </Sheet>
-                  </div>
-                </div>
-              )}
             </div>
             
-            <div className={cn("relative", showFullMap ? "h-[500px]" : "h-[400px]")}>
-              <MapView userType="driver" mode={currentTripStatus === 'active' ? "navigation" : "preview"} fullView={showFullMap} />
+            <div className="bg-card rounded-xl p-6 shadow-sm border">
+              <h2 className="text-lg font-medium mb-4">Recent Trip History</h2>
+              <TripHistory userType="driver" />
             </div>
           </div>
-          
-          {showFullMap ? (
-            <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-              <h2 className="text-lg font-medium mb-4">Current Trip Statistics</h2>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="text-sm font-medium text-gray-500">Total Distance</div>
-                  <div className="text-xl font-semibold mt-1">24.8 miles</div>
-                </div>
-                
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="text-sm font-medium text-gray-500">Scheduled Stops</div>
-                  <div className="text-xl font-semibold mt-1">18 stops</div>
-                </div>
-                
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="text-sm font-medium text-gray-500">Students on Board</div>
-                  <div className="text-xl font-semibold mt-1">{currentTripStatus === 'active' ? '24' : '0'} students</div>
-                </div>
-                
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="text-sm font-medium text-gray-500">Estimated Time to Next Stop</div>
-                  <div className="text-xl font-semibold mt-1">5 minutes</div>
-                </div>
-              </div>
-              
-              <div className="flex justify-end mt-4">
-                <Button 
-                  onClick={() => setShowStopsPage(true)} 
-                  variant="outline" 
-                  size="sm" 
-                  className="mr-2"
-                >
-                  View Stops
-                </Button>
-                <Button onClick={() => setShowFullMap(false)} variant="outline" size="sm">
-                  View Dashboard
-                </Button>
-              </div>
+        )}
+
+        {/* Student Attendance Table */}
+        {!showFullMap && (
+          <div className="bg-card rounded-xl p-6 shadow-sm border">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-medium">Today's Student Attendance</h2>
+              <Button size="sm" variant="outline">Export Data</Button>
             </div>
-          ) : (
-            currentTripStatus === 'active' && (
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-medium">Trip In Progress</h2>
-                  <Button onClick={() => setShowFullMap(true)} variant="outline" size="sm">
-                    Full Map View
+            
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-card rounded-md">
+                <thead>
+                  <tr className="bg-muted text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                    <th className="px-4 py-3">Student ID</th>
+                    <th className="px-4 py-3">Name</th>
+                    <th className="px-4 py-3">Grade</th>
+                    <th className="px-4 py-3">Stop</th>
+                    <th className="px-4 py-3">Morning Status</th>
+                    <th className="px-4 py-3">Afternoon Status</th>
+                  </tr>
+                </thead>
+                <tbody className="text-sm">
+                  {studentAttendance.map((student) => (
+                    <tr key={student.id} className="border-t">
+                      <td className="px-4 py-3">{student.id}</td>
+                      <td className="px-4 py-3">{student.name}</td>
+                      <td className="px-4 py-3">{student.grade}</td>
+                      <td className="px-4 py-3">{student.stop}</td>
+                      <td className="px-4 py-3">
+                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          student.morningStatus === 'Present' 
+                            ? 'bg-green-100 text-green-700' 
+                            : student.morningStatus === 'Absent' 
+                            ? 'bg-red-100 text-red-700' 
+                            : 'bg-gray-100 text-gray-700'
+                        }`}>
+                          {student.morningStatus}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          student.afternoonStatus === 'Present' 
+                            ? 'bg-green-100 text-green-700' 
+                            : student.afternoonStatus === 'Absent' 
+                            ? 'bg-red-100 text-red-700' 
+                            : 'bg-gray-100 text-gray-700'
+                        }`}>
+                          {student.afternoonStatus}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Options Sheet for Mobile */}
+        {currentTripStatus === 'active' && (
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button 
+                className="fixed bottom-4 right-4 md:hidden" 
+                size="icon"
+                variant="default"
+              >
+                <MoreVertical size={18} />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[300px]">
+              <div className="py-4">
+                <h3 className="text-lg font-medium mb-4">Options</h3>
+                <div className="space-y-4">
+                  <Button 
+                    onClick={() => setShowStopsPage(true)}
+                    variant="outline" 
+                    className="w-full justify-start"
+                  >
+                    <MapPin className="mr-2 h-4 w-4" /> View Stops
+                  </Button>
+                  <Button 
+                    onClick={() => setShowComplaintDialog(true)} 
+                    variant="outline" 
+                    className="w-full justify-start"
+                  >
+                    <AlertTriangle className="mr-2 h-4 w-4" /> Report Issue
+                  </Button>
+                  <Button 
+                    onClick={() => setShowLeaveDialog('regular')} 
+                    variant="outline" 
+                    className="w-full justify-start"
+                  >
+                    <Calendar className="mr-2 h-4 w-4" /> Apply for Leave
+                  </Button>
+                  <Button 
+                    onClick={() => setShowLeaveDialog('emergency')} 
+                    variant="outline" 
+                    className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <AlertTriangle className="mr-2 h-4 w-4" /> Emergency Leave
                   </Button>
                 </div>
-                <p className="text-gray-600">Your trip on Route #248 is currently active.</p>
               </div>
-            )
-          )}
-          
-          {!showFullMap && (
-            <>
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <h2 className="text-lg font-medium mb-4">Today's Statistics</h2>
-                
-                <div className="space-y-4">
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <div className="text-sm font-medium text-gray-500">Total Distance</div>
-                    <div className="text-xl font-semibold mt-1">24.8 miles</div>
-                  </div>
-                  
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <div className="text-sm font-medium text-gray-500">Scheduled Stops</div>
-                    <div className="text-xl font-semibold mt-1">18 stops</div>
-                  </div>
-                  
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <div className="text-sm font-medium text-gray-500">Students on Board</div>
-                    <div className="text-xl font-semibold mt-1">{currentTripStatus === 'active' ? '24' : '0'} students</div>
-                  </div>
-                  
-                  <div className="p-4 bg-gray-50 rounded-lg">
-                    <div className="text-sm font-medium text-gray-500">Estimated Time to Next Stop</div>
-                    <div className="text-xl font-semibold mt-1">5 minutes</div>
-                  </div>
-                  
-                  <div className="flex space-x-3">
-                    <Button onClick={() => setShowLeaveDialog('emergency')} variant="outline" className="flex-1 border-red-200 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700">
-                      <AlertTriangle size={16} className="mr-2" /> Emergency
-                    </Button>
-                    <Button onClick={() => setShowComplaintDialog(true)} variant="outline" className="flex-1">
-                      <FileText size={16} className="mr-2" /> Report Issue
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <h2 className="text-lg font-medium mb-4">Recent Trip History</h2>
-                <TripHistory userType="driver" />
-              </div>
-              
-              <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-medium">Today's Student Attendance</h2>
-                  <Button size="sm" variant="outline">Export Data</Button>
-                </div>
-                
-                <div className="overflow-x-auto">
-                  <table className="min-w-full bg-white rounded-md">
-                    <thead>
-                      <tr className="bg-gray-50 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                        <th className="px-4 py-3">Student ID</th>
-                        <th className="px-4 py-3">Name</th>
-                        <th className="px-4 py-3">Grade</th>
-                        <th className="px-4 py-3">Stop</th>
-                        <th className="px-4 py-3">Morning Status</th>
-                        <th className="px-4 py-3">Afternoon Status</th>
-                      </tr>
-                    </thead>
-                    <tbody className="text-sm">
-                      {studentAttendance.map((student) => (
-                        <tr key={student.id} className="border-t">
-                          <td className="px-4 py-3">{student.id}</td>
-                          <td className="px-4 py-3">{student.name}</td>
-                          <td className="px-4 py-3">{student.grade}</td>
-                          <td className="px-4 py-3">{student.stop}</td>
-                          <td className="px-4 py-3">
-                            <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              student.morningStatus === 'Present' 
-                                ? 'bg-green-100 text-green-700' 
-                                : student.morningStatus === 'Absent' 
-                                ? 'bg-red-100 text-red-700' 
-                                : 'bg-gray-100 text-gray-700'
-                            }`}>
-                              {student.morningStatus}
-                            </div>
-                          </td>
-                          <td className="px-4 py-3">
-                            <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              student.afternoonStatus === 'Present' 
-                                ? 'bg-green-100 text-green-700' 
-                                : student.afternoonStatus === 'Absent' 
-                                ? 'bg-red-100 text-red-700' 
-                                : 'bg-gray-100 text-gray-700'
-                            }`}>
-                              {student.afternoonStatus}
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </>
-          )}
-        </div>
+            </SheetContent>
+          </Sheet>
+        )}
       </main>
       
       <Dialog open={showLeaveDialog !== null} onOpenChange={(open) => !open && setShowLeaveDialog(null)}>
