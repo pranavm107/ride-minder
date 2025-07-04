@@ -66,8 +66,9 @@ const ParentLogin = () => {
 
   return (
     <AuthLayout 
-      title="Parent Portal"
-      subtitle="Monitor your child's journey with peace of mind"
+      heading="Parent Portal"
+      subheading="Monitor your child's journey with peace of mind"
+      dashboardType="admin"
       quote={{
         text: "Your child's safety is our priority, and your peace of mind is our commitment.",
         author: "RideMinder Team"
