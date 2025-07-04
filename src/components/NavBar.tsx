@@ -36,7 +36,8 @@ const NavBar = ({ userType, onPaymentClick }: NavBarProps) => {
     { label: 'Home', path: '/' },
     { label: 'Student', path: '/login/student' },
     { label: 'Driver', path: '/login/driver' },
-    { label: 'Admin', path: '/login/admin' }
+    { label: 'Admin', path: '/login/admin' },
+    { label: 'Parent', path: '/login/parent' }
   ];
 
   return (

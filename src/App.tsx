@@ -18,8 +18,10 @@ import DriverLogin from "./pages/login/DriverLogin";
 import AdminLogin from "./pages/login/AdminLogin";
 import ForgotPassword from "./pages/login/ForgotPassword";
 import LoginSelector from "./pages/login/LoginSelector";
+import ParentLogin from "./pages/login/ParentLogin";
 import GuestLogin from "./pages/guest/GuestLogin";
 import GuestDashboard from "./pages/guest/GuestDashboard";
+import ParentDashboard from "./pages/ParentDashboard";
 import TripHistoryPage from "./pages/TripHistoryPage";
 import StudentAttendancePage from "./pages/StudentAttendancePage";
 import BillUploadsPage from "./pages/BillUploadsPage";
@@ -49,6 +51,7 @@ const AnimatedRoutes = () => {
         <Route path="/login/student" element={<StudentLogin />} />
         <Route path="/login/driver" element={<DriverLogin />} />
         <Route path="/login/admin" element={<AdminLogin />} />
+        <Route path="/login/parent" element={<ParentLogin />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         
         {/* Guest Routes */}
@@ -59,6 +62,7 @@ const AnimatedRoutes = () => {
         <Route path="/student" element={<StudentDashboard />} />
         <Route path="/driver" element={<DriverDashboard />} />
         <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/parent" element={<ParentDashboard />} />
         <Route path="/receipt" element={<ReceiptPage />} />
         <Route path="/route-stops" element={<RouteStopsPage />} />
         <Route path="/reports" element={<ReportsPage />} />
