@@ -9,6 +9,7 @@ import ActionSummaryCards from '@/components/driver/ActionSummaryCards';
 import TripBanner from '@/components/driver/TripBanner';
 import LiveRouteTracking from '@/components/driver/LiveRouteTracking';
 import TripStatistics from '@/components/driver/TripStatistics';
+import GuestStudentsSection from '@/components/driver/GuestStudentsSection';
 import { useToast } from '@/hooks/use-toast';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -196,6 +197,11 @@ const DriverDashboard = () => {
           currentTripStatus={currentTripStatus}
           showFullMap={showFullMap}
         />
+
+        {/* Guest Students Section */}
+        {!showFullMap && (
+          <GuestStudentsSection currentTripStatus={currentTripStatus} />
+        )}
 
         {/* Trip In Progress Card */}
         {!showFullMap && currentTripStatus === 'active' && (
