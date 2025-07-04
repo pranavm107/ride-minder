@@ -32,6 +32,7 @@ import CameraControlPage from "./pages/CameraControlPage";
 import DriverDocumentsPage from "./pages/DriverDocumentsPage";
 import StudentCommunityPage from "./pages/StudentCommunityPage";
 import AvailableRidesPage from "./pages/AvailableRidesPage";
+import LocationManagement from "./pages/LocationManagement";
 import NavRedirector from "./components/NavRedirector";
 
 const queryClient = new QueryClient();
@@ -79,6 +80,7 @@ const AnimatedRoutes = () => {
         {/* Admin Routes */}
         <Route path="/camera-control" element={<CameraControlPage />} />
         <Route path="/driver-documents" element={<DriverDocumentsPage />} />
+        <Route path="/location-management" element={<LocationManagement />} />
         
         {/* Student Routes */}
         <Route path="/community" element={<StudentCommunityPage />} />

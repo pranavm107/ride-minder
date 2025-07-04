@@ -44,8 +44,8 @@ const ParentDashboard = () => {
     registerNumber: '21CS1045',
     cabNumber: 'CB-248',
     profilePhoto: '/placeholder.svg',
-    pickupLocation: 'Rajouri Garden Metro',
-    dropLocation: 'Delhi Technical University',
+    pickupLocation: 'Gandhipuram',
+    dropLocation: 'Pollachi',
     parentName: 'Rajesh Sharma',
     phoneNumber: '+91 98765 43210'
   };

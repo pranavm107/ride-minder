@@ -11,14 +11,36 @@ import {
   Mail, 
   Calendar,
   Edit,
-  QrCode
+  QrCode,
+  Clock,
+  Navigation
 } from 'lucide-react';
+import { Location } from '@/types/locations';
+import { PICKUP_LOCATIONS, DROP_LOCATIONS } from '@/data/locations';
 
 interface StudentProfileCardProps {
-  studentData: any;
+  studentData: {
+    name: string;
+    registerNumber: string;
+    cabNumber: string;
+    profilePhoto: string;
+    pickupLocation: string;
+    dropLocation: string;
+    parentName: string;
+    phoneNumber: string;
+  };
 }
 
 const StudentProfileCard = ({ studentData }: StudentProfileCardProps) => {
+  // Find the actual location objects based on names
+  const pickupLocation = PICKUP_LOCATIONS.find(loc => 
+    loc.areaName.toLowerCase() === studentData.pickupLocation.toLowerCase()
+  ) || PICKUP_LOCATIONS[0]; // fallback to first location
+  
+  const dropLocation = DROP_LOCATIONS.find(loc => 
+    loc.areaName.toLowerCase() === studentData.dropLocation.toLowerCase()
+  ) || DROP_LOCATIONS[0]; // fallback to first location
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Student Profile */}
@@ -76,17 +98,37 @@ const StudentProfileCard = ({ studentData }: StudentProfileCardProps) => {
           <div className="space-y-3">
             <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
               <MapPin className="h-4 w-4 text-green-600 mt-0.5" />
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <p className="text-sm font-medium">Pickup Location</p>
-                <p className="text-sm text-muted-foreground">{studentData.pickupLocation}</p>
+                <p className="text-sm text-muted-foreground">{pickupLocation.areaName}</p>
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Navigation className="h-3 w-3" />
+                    {pickupLocation.distanceFromCollege}km from college
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    ~{pickupLocation.estimatedTime} min
+                  </span>
+                </div>
               </div>
             </div>
 
             <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
               <MapPin className="h-4 w-4 text-blue-600 mt-0.5" />
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <p className="text-sm font-medium">Drop Location</p>
-                <p className="text-sm text-muted-foreground">{studentData.dropLocation}</p>
+                <p className="text-sm text-muted-foreground">{dropLocation.areaName}</p>
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Navigation className="h-3 w-3" />
+                    {dropLocation.distanceFromCollege}km from college
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    ~{dropLocation.estimatedTime} min
+                  </span>
+                </div>
               </div>
             </div>
           </div>
