@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import MapView from '@/components/MapView';
+import { getLocationById, PICKUP_LOCATIONS, DROP_LOCATIONS } from '@/data/locations';
 import { Clock, AlertCircle, Maximize } from 'lucide-react';
 
 interface LiveRouteTrackingProps {
@@ -12,6 +13,7 @@ interface LiveRouteTrackingProps {
   onNotifyDelay: () => void;
   onSendSOS: () => void;
   onEndTrip: () => void;
+  assignedRoute?: { pickup: string; drop: string; };
 }
 
 const LiveRouteTracking = ({ 
@@ -20,8 +22,22 @@ const LiveRouteTracking = ({
   onToggleFullMap,
   onNotifyDelay,
   onSendSOS,
-  onEndTrip
+  onEndTrip,
+  assignedRoute
 }: LiveRouteTrackingProps) => {
+  // Get real locations for driver's assigned route
+  const pickupLocation = assignedRoute?.pickup ? 
+    (getLocationById(assignedRoute.pickup.toLowerCase().replace(/\s+/g, '-')) || PICKUP_LOCATIONS[0]) : 
+    PICKUP_LOCATIONS[0];
+  const dropLocation = assignedRoute?.drop ? 
+    (getLocationById(assignedRoute.drop.toLowerCase().replace(/\s+/g, '-')) || DROP_LOCATIONS[0]) : 
+    DROP_LOCATIONS[0];
+
+  // Simulated current bus location
+  const currentBusLocation = {
+    lat: 11.0100,
+    lng: 76.9600
+  };
   return (
     <Card className="overflow-hidden">
       <CardHeader className="pb-4">
@@ -93,6 +109,12 @@ const LiveRouteTracking = ({
             userType="driver" 
             mode={currentTripStatus === 'active' ? "navigation" : "preview"} 
             fullView={showFullMap} 
+            isActive={currentTripStatus === 'active'}
+            currentBusLocation={currentBusLocation}
+            assignedRoute={{
+              pickup: pickupLocation,
+              drop: dropLocation
+            }}
           />
         </div>
       </CardContent>
