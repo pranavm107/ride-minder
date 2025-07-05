@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Bus, User, Search, ArrowRight } from 'lucide-react';
+import { Bus, User, Search, ArrowRight, Users } from 'lucide-react';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -24,7 +24,7 @@ const DashboardSelector = ({ open, onOpenChange }: SelectorProps) => {
       description: 'Track your bus and manage your schedule',
       icon: <User className="h-8 w-8 text-blue-500" />,
       color: 'bg-blue-50 border-blue-200 hover:bg-blue-100',
-      path: '/login/student'
+      path: '/login'
     },
     {
       id: 'driver',
@@ -33,6 +33,14 @@ const DashboardSelector = ({ open, onOpenChange }: SelectorProps) => {
       icon: <Bus className="h-8 w-8 text-emerald-500" />,
       color: 'bg-emerald-50 border-emerald-200 hover:bg-emerald-100',
       path: '/login/driver'
+    },
+    {
+      id: 'parent',
+      title: 'Parent',
+      description: 'Monitor your child\'s transportation',
+      icon: <Users className="h-8 w-8 text-purple-500" />,
+      color: 'bg-purple-50 border-purple-200 hover:bg-purple-100',
+      path: '/login/parent'
     },
     {
       id: 'admin',

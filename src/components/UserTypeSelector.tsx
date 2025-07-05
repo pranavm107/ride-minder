@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { User, Bus, Search } from 'lucide-react';
+import { User, Bus, Search, Users } from 'lucide-react';
 
 type UserTypeProps = {
   className?: string;
@@ -29,6 +29,15 @@ const UserTypeSelector = ({ className }: UserTypeProps) => {
       borderColor: 'border-emerald-200',
     },
     {
+      title: 'Parent',
+      description: 'Monitor your child\'s transportation and safety',
+      icon: <Users className="h-6 w-6 text-brand-500" />,
+      link: '/login/parent',
+      color: 'from-purple-50 to-purple-100',
+      iconBg: 'bg-purple-100',
+      borderColor: 'border-purple-200',
+    },
+    {
       title: 'Administrator',
       description: 'Monitor fleet, manage routes, and access analytics',
       icon: <Search className="h-6 w-6 text-brand-500" />,
@@ -49,7 +58,7 @@ const UserTypeSelector = ({ className }: UserTypeProps) => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {userTypes.map((type, index) => (
             <Link 
               key={type.title}
