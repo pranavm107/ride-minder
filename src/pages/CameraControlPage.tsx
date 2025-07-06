@@ -1,525 +1,442 @@
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useToast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
-import { Camera, Video, AlertTriangle, Bell, Search, Bus, User } from 'lucide-react';
-import PageTransition from '@/components/PageTransition';
+import { cn } from '@/lib/utils';
+import { 
+  ArrowLeft, 
+  Camera, 
+  Lock, 
+  Unlock, 
+  AlertTriangle, 
+  Clock, 
+  Eye, 
+  EyeOff,
+  Shield,
+  Circle,
+  Play,
+  Pause,
+  RotateCcw
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { toast } from 'sonner';
 
-const BusCamera = ({ id, name, status, isEmergency = false, onView }: {
+type CameraStatus = 'locked' | 'sos' | 'idle' | 'manual_unlock';
+
+interface CabCamera {
   id: string;
-  name: string;
-  status: 'online' | 'offline';
-  isEmergency?: boolean;
-  onView: () => void;
-}) => (
-  <Card className={`overflow-hidden ${isEmergency ? 'border-red-500 shadow-lg shadow-red-200' : ''}`}>
-    <div className="relative aspect-video bg-gray-800 flex items-center justify-center">
-      {status === 'online' ? (
-        <div className="w-full h-full relative">
-          <img 
-            src={`https://source.unsplash.com/random/800x450?bus-interior&sig=${id}`} 
-            alt={`Bus ${name} camera feed`}
-            className="w-full h-full object-cover opacity-80"
-          />
-          <div className="absolute top-2 right-2 flex gap-2">
-            <Badge variant={isEmergency ? "destructive" : "outline"} className="bg-black/50 backdrop-blur-sm">
-              <div className="flex items-center gap-1">
-                <div className={`w-2 h-2 rounded-full ${status === 'online' ? 'bg-green-500' : 'bg-gray-500'} animate-pulse`}></div>
-                LIVE
-              </div>
-            </Badge>
-            {isEmergency && (
-              <Badge variant="destructive" className="animate-pulse">
-                <AlertTriangle className="w-3 h-3 mr-1" /> SOS
-              </Badge>
-            )}
-          </div>
-          <div className="absolute bottom-2 left-2 text-xs text-white font-mono bg-black/50 px-2 py-1 rounded">
-            Bus {name} • {new Date().toLocaleTimeString()}
-          </div>
-        </div>
-      ) : (
-        <div className="text-gray-400 flex flex-col items-center gap-2">
-          <Camera className="w-10 h-10" />
-          <p>Camera Offline</p>
-        </div>
-      )}
-    </div>
-    <CardContent className="p-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="font-medium">Bus {name}</h3>
-          <p className="text-sm text-gray-500">
-            {status === 'online' ? 'Connected' : 'Disconnected'}
-          </p>
-        </div>
-        <Button size="sm" variant={isEmergency ? "destructive" : "default"} onClick={onView}>
-          <Camera className="w-4 h-4 mr-2" /> View {isEmergency && "SOS"}
-        </Button>
-      </div>
-    </CardContent>
-  </Card>
-);
+  cabNumber: string;
+  driver: string;
+  route: string;
+  location: {
+    lat: number;
+    lng: number;
+  };
+  cameraURL: string;
+  lastMoved: number;
+  sos: boolean;
+  status: CameraStatus;
+  manualUnlockExpiry?: number;
+}
 
-const CameraControlPage: React.FC = () => {
-  const { toast } = useToast();
-  const [activeCamera, setActiveCamera] = useState<string | null>(null);
-  const [filter, setFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [recordingEnabled, setRecordingEnabled] = useState<Record<string, boolean>>({
-    'B001': true,
-    'B002': true,
-    'B003': false,
-    'B004': true,
-    'B005': false,
-    'B006': true,
-  });
-
-  // Mock SOS alerts
-  const [sosAlerts, setSosAlerts] = useState([
-    { id: 'SOS001', busId: 'B003', timestamp: new Date(), resolved: false, type: 'student' },
+const CameraControlPage = () => {
+  const navigate = useNavigate();
+  const [selectedCab, setSelectedCab] = useState<string | null>(null);
+  const [passwordDialog, setPasswordDialog] = useState<string | null>(null);
+  const [password, setPassword] = useState('');
+  const [isRecording, setIsRecording] = useState<{ [key: string]: boolean }>({});
+  
+  // Hardcoded password for demo
+  const ADMIN_PASSWORD = 'admin123';
+  
+  // Mock cab data with camera information
+  const [cabCameras, setCabCameras] = useState<CabCamera[]>([
+    {
+      id: 'cab_001',
+      cabNumber: 'TN38A1234',
+      driver: 'Rajesh Kumar',
+      route: 'Gandhipuram → Pollachi',
+      location: { lat: 11.0176, lng: 76.9558 },
+      cameraURL: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+      lastMoved: Date.now() - 2 * 60 * 1000, // 2 minutes ago
+      sos: false,
+      status: 'locked'
+    },
+    {
+      id: 'cab_002',
+      cabNumber: 'TN38B5678',
+      driver: 'Priya Devi',
+      route: 'Ukkadam → Eachanari',
+      location: { lat: 10.9983, lng: 76.9674 },
+      cameraURL: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4',
+      lastMoved: Date.now() - 8 * 60 * 1000, // 8 minutes ago (idle)
+      sos: false,
+      status: 'idle'
+    },
+    {
+      id: 'cab_003',
+      cabNumber: 'TN38C9012',
+      driver: 'Murugan S',
+      route: 'Town Hall → Kinathukadavu',
+      location: { lat: 10.9976, lng: 76.9629 },
+      cameraURL: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_5mb.mp4',
+      lastMoved: Date.now() - 1 * 60 * 1000, // 1 minute ago
+      sos: true,
+      status: 'sos'
+    },
+    {
+      id: 'cab_004',
+      cabNumber: 'TN38D3456',
+      driver: 'Lakshmi R',
+      route: 'Singanallur → Vadavalli',
+      location: { lat: 11.0023, lng: 77.0277 },
+      cameraURL: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+      lastMoved: Date.now() - 30 * 1000, // 30 seconds ago
+      sos: false,
+      status: 'locked'
+    }
   ]);
 
-  const busCameras = [
-    { id: 'B001', name: '001', status: 'online' as const, driver: 'John Smith' },
-    { id: 'B002', name: '002', status: 'online' as const, driver: 'Sarah Johnson' },
-    { id: 'B003', name: '003', status: 'online' as const, driver: 'Mike Davis' },
-    { id: 'B004', name: '004', status: 'offline' as const, driver: 'Emily Wilson' },
-    { id: 'B005', name: '005', status: 'online' as const, driver: 'David Brown' },
-    { id: 'B006', name: '006', status: 'online' as const, driver: 'Lisa Thompson' },
-  ];
+  // Update camera statuses based on conditions
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCabCameras(prev => prev.map(cab => {
+        const now = Date.now();
+        const timeSinceLastMove = now - cab.lastMoved;
+        const fiveMinutes = 5 * 60 * 1000;
+        
+        // Check manual unlock expiry
+        if (cab.status === 'manual_unlock' && cab.manualUnlockExpiry && now > cab.manualUnlockExpiry) {
+          return { ...cab, status: 'locked' as CameraStatus, manualUnlockExpiry: undefined };
+        }
+        
+        // Check for idle detection (if not SOS and not manually unlocked)
+        if (!cab.sos && cab.status !== 'manual_unlock' && timeSinceLastMove > fiveMinutes) {
+          return { ...cab, status: 'idle' as CameraStatus };
+        }
+        
+        // Check for SOS
+        if (cab.sos) {
+          return { ...cab, status: 'sos' as CameraStatus };
+        }
+        
+        // Default to locked if no special conditions
+        if (cab.status !== 'manual_unlock' && !cab.sos && timeSinceLastMove < fiveMinutes) {
+          return { ...cab, status: 'locked' as CameraStatus };
+        }
+        
+        return cab;
+      }));
+    }, 2000); // Check every 2 seconds
 
-  const handleViewCamera = (busId: string) => {
-    setActiveCamera(busId);
-    
-    // Check if it's an SOS camera
-    const isEmergency = sosAlerts.some(alert => alert.busId === busId && !alert.resolved);
-    
-    if (isEmergency) {
-      toast({
-        variant: "destructive",
-        title: "Emergency Alert",
-        description: "Connected to emergency camera feed. Authorities have been notified.",
-      });
+    return () => clearInterval(interval);
+  }, []);
+
+  // Simulate SOS alert sound effect
+  useEffect(() => {
+    const sosAlerts = cabCameras.filter(cab => cab.sos);
+    if (sosAlerts.length > 0) {
+      // Would play alert sound here
+      console.log('🚨 SOS Alert Sound');
+    }
+  }, [cabCameras]);
+
+  const handlePasswordSubmit = (cabId: string) => {
+    if (password === ADMIN_PASSWORD) {
+      const fiveMinutesFromNow = Date.now() + 5 * 60 * 1000;
+      setCabCameras(prev => prev.map(cab =>
+        cab.id === cabId
+          ? { ...cab, status: 'manual_unlock' as CameraStatus, manualUnlockExpiry: fiveMinutesFromNow }
+          : cab
+      ));
+      setPasswordDialog(null);
+      setPassword('');
+      toast.success('Camera unlocked for 5 minutes');
     } else {
-      toast({
-        title: "Camera Connected",
-        description: `Now viewing live feed from Bus ${busId.replace('B', '')}`,
-      });
+      toast.error('Incorrect password');
+      setPassword('');
     }
   };
 
-  const handleResolveSOS = (alertId: string) => {
-    setSosAlerts(alerts => 
-      alerts.map(alert => 
-        alert.id === alertId ? { ...alert, resolved: true } : alert
-      )
-    );
-    
-    toast({
-      title: "SOS Alert Resolved",
-      description: "The emergency has been marked as resolved.",
-    });
+  const getCameraStatusInfo = (cab: CabCamera) => {
+    switch (cab.status) {
+      case 'sos':
+        return {
+          label: '🚨 SOS - Live Camera Enabled',
+          color: 'bg-red-100 text-red-800 border-red-200',
+          canView: true,
+          autoRecord: true
+        };
+      case 'idle':
+        return {
+          label: '⚠️ Idle Detected: Camera Activated',
+          color: 'bg-amber-100 text-amber-800 border-amber-200',
+          canView: true,
+          autoRecord: false
+        };
+      case 'manual_unlock':
+        const timeLeft = cab.manualUnlockExpiry ? Math.ceil((cab.manualUnlockExpiry - Date.now()) / 1000 / 60) : 0;
+        return {
+          label: `🔓 Manual Unlock (${timeLeft}m left)`,
+          color: 'bg-green-100 text-green-800 border-green-200',
+          canView: true,
+          autoRecord: false
+        };
+      default:
+        return {
+          label: '🔒 Camera Locked',
+          color: 'bg-gray-100 text-gray-800 border-gray-200',
+          canView: false,
+          autoRecord: false
+        };
+    }
   };
 
-  const handleToggleRecording = (busId: string) => {
-    setRecordingEnabled(prev => ({
-      ...prev,
-      [busId]: !prev[busId]
-    }));
-    
-    toast({
-      title: recordingEnabled[busId] ? "Recording Disabled" : "Recording Enabled",
-      description: `Automatic recording has been ${recordingEnabled[busId] ? 'disabled' : 'enabled'} for Bus ${busId.replace('B', '')}`,
-    });
+  const toggleRecording = (cabId: string) => {
+    setIsRecording(prev => ({ ...prev, [cabId]: !prev[cabId] }));
+    const isNowRecording = !isRecording[cabId];
+    toast.success(isNowRecording ? 'Recording started' : 'Recording stopped');
   };
 
-  const filteredCameras = busCameras
-    .filter(camera => {
-      if (filter === 'online') return camera.status === 'online';
-      if (filter === 'offline') return camera.status === 'offline';
-      if (filter === 'emergency') {
-        return sosAlerts.some(alert => alert.busId === camera.id && !alert.resolved);
-      }
-      return true;
-    })
-    .filter(camera => 
-      camera.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      camera.driver.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+  const getTimeAgo = (timestamp: number) => {
+    const now = Date.now();
+    const diff = now - timestamp;
+    const minutes = Math.floor(diff / (1000 * 60));
+    
+    if (minutes < 1) return 'Just now';
+    if (minutes === 1) return '1 minute ago';
+    return `${minutes} minutes ago`;
+  };
+
+  const simulateSOSToggle = (cabId: string) => {
+    setCabCameras(prev => prev.map(cab =>
+      cab.id === cabId ? { ...cab, sos: !cab.sos } : cab
+    ));
+  };
 
   return (
-    <PageTransition>
-      <div className="min-h-screen bg-gray-50">
-        <NavBar userType="admin" />
-        
-        <main className="container mx-auto px-4 py-6">
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
-            <div>
-              <h1 className="text-2xl font-bold mb-1">Live Camera Monitoring</h1>
-              <p className="text-gray-500">Monitor and control all bus cameras from a central dashboard</p>
-            </div>
-            
-            <div className="flex items-center mt-4 md:mt-0">
-              <div className="relative mr-4">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
-                <Input
-                  placeholder="Search buses or drivers..."
-                  className="pl-8 w-[200px] md:w-[250px]"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              
+    <div className="min-h-screen bg-gray-50">
+      <NavBar />
+      
+      <main className="pt-20 pb-12 px-4 md:px-8">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="mb-8 mt-4">
+            <div className="flex items-center gap-4 mb-4">
               <Button
                 variant="outline"
-                className={sosAlerts.some(a => !a.resolved) ? "bg-red-50 text-red-600 border-red-200 hover:bg-red-100" : ""}
-                onClick={() => setFilter('emergency')}
+                onClick={() => navigate('/admin')}
+                className="flex items-center gap-2"
               >
-                <AlertTriangle className={`h-4 w-4 mr-2 ${sosAlerts.some(a => !a.resolved) ? "text-red-600" : ""}`} />
-                {sosAlerts.filter(a => !a.resolved).length > 0 ? `${sosAlerts.filter(a => !a.resolved).length} Active SOS` : "No Alerts"}
+                <ArrowLeft className="h-4 w-4" />
+                Back to Dashboard
               </Button>
             </div>
+            <div>
+              <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Camera Control Center</h1>
+              <p className="text-gray-600 mt-1">Monitor cab cameras with intelligent access control</p>
+            </div>
           </div>
-          
-          {sosAlerts.some(alert => !alert.resolved) && (
-            <div className="mb-6">
-              <Card className="border-red-500 bg-red-50">
-                <CardContent className="p-4">
-                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-                    <div className="flex items-center">
-                      <AlertTriangle className="h-5 w-5 text-red-600 mr-3" />
-                      <div>
-                        <h3 className="font-semibold text-red-800">Emergency SOS Alert</h3>
-                        <p className="text-red-700 text-sm">
-                          {sosAlerts.filter(a => !a.resolved).length} active emergency alert(s) from {
-                            sosAlerts.filter(a => !a.resolved).map(a => `Bus ${a.busId.replace('B', '')}`).join(', ')
-                          }
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex mt-3 md:mt-0">
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="mr-2 border-red-300 text-red-700 hover:bg-red-200"
-                        onClick={() => {
-                          const unresolvedAlert = sosAlerts.find(a => !a.resolved);
-                          if (unresolvedAlert) {
-                            handleViewCamera(unresolvedAlert.busId);
-                          }
-                        }}
-                      >
-                        <Camera className="h-4 w-4 mr-1" /> View Camera
-                      </Button>
-                      
-                      <Button 
-                        size="sm" 
-                        onClick={() => {
-                          const unresolvedAlert = sosAlerts.find(a => !a.resolved);
-                          if (unresolvedAlert) {
-                            handleResolveSOS(unresolvedAlert.id);
-                          }
-                        }}
-                      >
-                        Resolve Alert
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-          
-          <Tabs defaultValue="grid" className="mb-6">
-            <div className="flex justify-between items-center">
-              <TabsList>
-                <TabsTrigger value="grid">Grid View</TabsTrigger>
-                <TabsTrigger value="active">Active Camera</TabsTrigger>
-                <TabsTrigger value="map">Map View</TabsTrigger>
-              </TabsList>
+
+          {/* Camera Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {cabCameras.map((cab) => {
+              const statusInfo = getCameraStatusInfo(cab);
               
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline" 
-                  size="sm" 
-                  className={filter === 'all' ? 'bg-gray-100' : ''} 
-                  onClick={() => setFilter('all')}
-                >
-                  All
-                </Button>
-                <Button
-                  variant="outline" 
-                  size="sm" 
-                  className={filter === 'online' ? 'bg-gray-100' : ''} 
-                  onClick={() => setFilter('online')}
-                >
-                  Online
-                </Button>
-                <Button
-                  variant="outline" 
-                  size="sm" 
-                  className={filter === 'offline' ? 'bg-gray-100' : ''} 
-                  onClick={() => setFilter('offline')}
-                >
-                  Offline
-                </Button>
-              </div>
-            </div>
-            
-            <TabsContent value="grid" className="mt-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredCameras.map((camera) => (
-                  <BusCamera 
-                    key={camera.id}
-                    id={camera.id}
-                    name={camera.name}
-                    status={camera.status}
-                    isEmergency={sosAlerts.some(alert => alert.busId === camera.id && !alert.resolved)}
-                    onView={() => handleViewCamera(camera.id)}
-                  />
-                ))}
-                
-                {filteredCameras.length === 0 && (
-                  <div className="col-span-3 py-12 text-center">
-                    <div className="mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-3">
-                      <Camera className="h-6 w-6 text-gray-400" />
+              return (
+                <Card key={cab.id} className="overflow-hidden">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg font-semibold">
+                        CAB #{cab.cabNumber}
+                      </CardTitle>
+                      <Badge className={cn('px-3 py-1 text-xs font-medium', statusInfo.color)}>
+                        {statusInfo.label}
+                      </Badge>
                     </div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-1">No cameras found</h3>
-                    <p className="text-gray-500">Try adjusting your filters or search terms</p>
-                  </div>
-                )}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="active" className="mt-4">
-              {activeCamera ? (
-                <div className="space-y-4">
-                  <Card className="overflow-hidden">
-                    <div className="relative aspect-video bg-gray-900">
-                      {busCameras.find(c => c.id === activeCamera)?.status === 'online' ? (
-                        <div className="w-full h-full relative">
-                          <img 
-                            src={`https://source.unsplash.com/random/1200x800?bus-interior&sig=${activeCamera}`} 
-                            alt={`Bus camera feed`}
-                            className="w-full h-full object-cover"
-                          />
-                          <div className="absolute top-4 right-4 flex flex-col gap-2">
-                            <Badge className="bg-black/50 backdrop-blur-sm">
-                              <div className="flex items-center gap-1">
-                                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                                LIVE
-                              </div>
-                            </Badge>
-                            {sosAlerts.some(alert => alert.busId === activeCamera && !alert.resolved) && (
-                              <Badge variant="destructive" className="animate-pulse">
-                                <AlertTriangle className="w-3 h-3 mr-1" /> SOS ACTIVE
-                              </Badge>
-                            )}
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <div>Driver: {cab.driver}</div>
+                      <div>Route: {cab.route}</div>
+                      <div>Last Update: {getTimeAgo(cab.lastMoved)}</div>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    {/* Camera View Area */}
+                    <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden mb-4">
+                      {statusInfo.canView ? (
+                        <div className="relative w-full h-full">
+                          {/* Simulated Camera Feed */}
+                          <div className="absolute inset-0 bg-gradient-to-br from-blue-900 to-gray-900 flex items-center justify-center">
+                            <div className="text-center text-white">
+                              <Camera className="h-12 w-12 mx-auto mb-2 animate-pulse" />
+                              <div className="text-sm font-medium">Live Camera Feed</div>
+                              <div className="text-xs opacity-75 mt-1">Streaming from {cab.cabNumber}</div>
+                            </div>
                           </div>
-                          <div className="absolute bottom-4 left-4 font-mono bg-black/50 px-2 py-1 rounded">
-                            Bus {busCameras.find(c => c.id === activeCamera)?.name} • {new Date().toLocaleTimeString()}
+                          
+                          {/* Live Status Indicator */}
+                          <div className="absolute top-3 left-3 bg-red-600 text-white px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
+                            <div className="h-2 w-2 bg-white rounded-full animate-pulse"></div>
+                            LIVE
+                          </div>
+                          
+                          {/* Recording Indicator */}
+                          {(statusInfo.autoRecord || isRecording[cab.id]) && (
+                            <div className="absolute top-3 right-3 bg-red-600 text-white px-2 py-1 rounded text-xs font-medium flex items-center gap-1">
+                              <Circle className="h-3 w-3" />
+                              REC
+                            </div>
+                          )}
+                          
+                          {/* Camera Controls */}
+                          <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                onClick={() => toggleRecording(cab.id)}
+                                className="bg-black/50 hover:bg-black/70 text-white border-0"
+                              >
+                                {isRecording[cab.id] ? <Pause className="h-4 w-4" /> : <Circle className="h-4 w-4" />}
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                className="bg-black/50 hover:bg-black/70 text-white border-0"
+                              >
+                                <RotateCcw className="h-4 w-4" />
+                              </Button>
+                            </div>
+                            <div className="text-white text-xs bg-black/50 px-2 py-1 rounded">
+                              {new Date().toLocaleTimeString()}
+                            </div>
                           </div>
                         </div>
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center">
-                          <div className="text-gray-400 flex flex-col items-center gap-2">
-                            <Camera className="w-16 h-16" />
-                            <p className="text-xl">Camera Offline</p>
+                        <div className="relative w-full h-full">
+                          {/* Blurred/Locked View */}
+                          <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                            <div className="text-center text-gray-400">
+                              <Lock className="h-12 w-12 mx-auto mb-2" />
+                              <div className="text-sm font-medium">Camera Locked</div>
+                              <div className="text-xs opacity-75 mt-1">Password required to view</div>
+                            </div>
                           </div>
+                          
+                          {/* Blur Effect Overlay */}
+                          <div className="absolute inset-0 backdrop-blur-lg bg-black/30"></div>
                         </div>
                       )}
                     </div>
                     
-                    <CardContent className="p-6">
-                      <div className="flex flex-col md:flex-row justify-between">
-                        <div>
-                          <h2 className="text-xl font-semibold mb-1">
-                            Bus {busCameras.find(c => c.id === activeCamera)?.name} Camera Feed
-                          </h2>
-                          <p className="text-gray-500 mb-4">
-                            Driver: {busCameras.find(c => c.id === activeCamera)?.driver}
-                          </p>
-                        </div>
+                    {/* Action Buttons */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-2">
+                        {!statusInfo.canView && (
+                          <Dialog open={passwordDialog === cab.id} onOpenChange={(open) => !open && setPasswordDialog(null)}>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                onClick={() => setPasswordDialog(cab.id)}
+                                className="flex items-center gap-2"
+                              >
+                                <Unlock className="h-4 w-4" />
+                                Unlock Camera
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Enter Admin Password</DialogTitle>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="text-sm font-medium text-gray-700">Password</label>
+                                  <Input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    placeholder="Enter password"
+                                    className="mt-1"
+                                    onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit(cab.id)}
+                                  />
+                                  <p className="text-xs text-gray-500 mt-1">Demo password: admin123</p>
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button onClick={() => handlePasswordSubmit(cab.id)} className="flex-1">
+                                    Unlock
+                                  </Button>
+                                  <Button variant="outline" onClick={() => setPasswordDialog(null)}>
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        )}
                         
-                        <div className="flex items-center space-x-6 mt-4 md:mt-0">
-                          <div className="flex items-center space-x-2">
-                            <Switch 
-                              id="recording" 
-                              checked={recordingEnabled[activeCamera] || false}
-                              onCheckedChange={() => handleToggleRecording(activeCamera)}
-                            />
-                            <label htmlFor="recording" className="text-sm font-medium">
-                              {recordingEnabled[activeCamera] ? "Recording Enabled" : "Recording Disabled"}
-                            </label>
-                          </div>
-                          
-                          <Button variant="outline" className="gap-2">
-                            <Video className="h-4 w-4" />
-                            Download Footage
+                        {cab.status === 'sos' && (
+                          <Button
+                            variant="destructive"
+                            className="flex items-center gap-2"
+                            onClick={() => toast.info('Emergency response initiated')}
+                          >
+                            <Shield className="h-4 w-4" />
+                            Respond to SOS
                           </Button>
-                        </div>
+                        )}
                       </div>
                       
-                      {sosAlerts.some(alert => alert.busId === activeCamera && !alert.resolved) && (
-                        <div className="mt-6 p-4 border border-red-300 bg-red-50 rounded-md">
-                          <div className="flex items-start">
-                            <AlertTriangle className="h-5 w-5 text-red-600 mr-3 mt-0.5" />
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-red-800">Emergency Alert Details</h3>
-                              <p className="text-red-700 text-sm mb-4">
-                                SOS alert triggered by {
-                                  sosAlerts.find(alert => alert.busId === activeCamera && !alert.resolved)?.type === 'student' 
-                                    ? 'a student' 
-                                    : 'the driver'
-                                } at {
-                                  sosAlerts.find(alert => alert.busId === activeCamera && !alert.resolved)?.timestamp.toLocaleTimeString()
-                                }
-                              </p>
-                              <div className="flex space-x-3">
-                                <Button 
-                                  size="sm" 
-                                  variant="destructive" 
-                                  onClick={() => {
-                                    const alertToResolve = sosAlerts.find(alert => alert.busId === activeCamera && !alert.resolved);
-                                    if (alertToResolve) {
-                                      handleResolveSOS(alertToResolve.id);
-                                    }
-                                  }}
-                                >
-                                  Resolve Emergency
-                                </Button>
-                                <Button size="sm" variant="outline">Contact Authorities</Button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                  
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Route Information</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Current route:</span>
-                            <span className="font-medium">Route #42</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Next stop:</span>
-                            <span className="font-medium">Westlake Station</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">ETA:</span>
-                            <span className="font-medium">5 minutes</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Students on board:</span>
-                            <span className="font-medium">17</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Vehicle Status</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Speed:</span>
-                            <span className="font-medium">28 mph</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Fuel level:</span>
-                            <span className="font-medium">72%</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Engine status:</span>
-                            <span className="font-medium text-green-600">Normal</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-500">Last maintenance:</span>
-                            <span className="font-medium">2 weeks ago</span>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                    
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Camera Controls</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-2 gap-2">
-                            <Button variant="outline" size="sm" className="h-auto py-2">Front View</Button>
-                            <Button variant="outline" size="sm" className="h-auto py-2">Rear View</Button>
-                            <Button variant="outline" size="sm" className="h-auto py-2">Driver View</Button>
-                            <Button variant="outline" size="sm" className="h-auto py-2">Door View</Button>
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm">Brightness</span>
-                              <span className="text-sm font-medium">65%</span>
-                            </div>
-                            <input type="range" className="w-full" defaultValue={65} />
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <span className="text-sm">Contrast</span>
-                              <span className="text-sm font-medium">50%</span>
-                            </div>
-                            <input type="range" className="w-full" defaultValue={50} />
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center py-24">
-                  <Camera className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                  <h3 className="text-lg font-medium">No camera selected</h3>
-                  <p className="text-gray-500 mb-4">Select a camera from the grid view to see its live feed</p>
-                  <Button onClick={() => setFilter('all')}>View All Cameras</Button>
-                </div>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="map" className="mt-4">
-              <Card>
-                <CardContent className="p-0 h-[600px] relative">
-                  <div className="absolute inset-0 bg-gray-200 flex items-center justify-center">
-                    <div className="text-center">
-                      <Bus className="h-12 w-12 mx-auto text-gray-400 mb-4" />
-                      <h3 className="text-lg font-medium">Bus Location Map</h3>
-                      <p className="text-gray-500 mb-4">View the real-time location of all buses</p>
-                      <p className="text-xs text-gray-400">Map view would be implemented here with bus locations</p>
+                      {/* Demo Controls */}
+                      <div className="flex gap-1">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => simulateSOSToggle(cab.id)}
+                          className="text-xs"
+                        >
+                          {cab.sos ? 'Clear SOS' : 'Trigger SOS'}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </main>
-      </div>
-    </PageTransition>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+          
+          {/* Legend */}
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle className="text-lg">Camera Access Legend</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-gray-100 text-gray-800 border-gray-200">🔒 Locked</Badge>
+                  <span>Password required to view</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-red-100 text-red-800 border-red-200">🚨 SOS Active</Badge>
+                  <span>Emergency - Auto enabled</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-amber-100 text-amber-800 border-amber-200">⚠️ Idle</Badge>
+                  <span>Cab idle for 5+ minutes</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-green-100 text-green-800 border-green-200">🔓 Unlocked</Badge>
+                  <span>Manual unlock (5 min timer)</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </main>
+    </div>
   );
 };
 
