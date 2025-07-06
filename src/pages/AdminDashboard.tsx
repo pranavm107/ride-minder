@@ -3,6 +3,9 @@ import React, { useState } from 'react';
 import NavBar from '@/components/NavBar';
 import MapView from '@/components/MapView';
 import DashboardCard from '@/components/DashboardCard';
+import AddDriverForm from '@/components/admin/AddDriverForm';
+import AddBusForm from '@/components/admin/AddBusForm'; 
+import AddRouteForm from '@/components/admin/AddRouteForm';
 import { cn } from '@/lib/utils';
 import { 
   Bus, 
@@ -49,7 +52,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'buses' | 'drivers' | 'students' | 'routes' | 'complaints' | 'payments' | 'reports'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'buses' | 'drivers' | 'students' | 'routes' | 'complaints' | 'payments' | 'reports' | 'add-driver' | 'add-bus' | 'add-route'>('overview');
   const [selectedView, setSelectedView] = useState<'data' | 'map'>('map');
   
   const busFleet = [
@@ -215,6 +218,12 @@ const AdminDashboard = () => {
     { title: 'Complaints', icon: MessageSquare, action: () => setActiveTab('complaints') },
     { title: 'Payments', icon: DollarSign, action: () => setActiveTab('payments') },
     { title: 'Reports', icon: FileText, action: () => setActiveTab('reports') },
+  ];
+
+  const managementItems = [
+    { title: 'Add Driver', icon: User, action: () => setActiveTab('add-driver') },
+    { title: 'Add Bus', icon: Bus, action: () => setActiveTab('add-bus') },
+    { title: 'Add Route', icon: MapPin, action: () => setActiveTab('add-route') },
     { title: 'Settings', icon: Settings, action: () => toast.info('Settings panel will be available soon') },
   ];
 
@@ -343,6 +352,26 @@ const AdminDashboard = () => {
             </SidebarGroup>
             
             <SidebarGroup>
+              <SidebarGroupLabel>Management</SidebarGroupLabel>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {managementItems.map((item) => (
+                    <SidebarMenuItem key={item.title}>
+                      <SidebarMenuButton 
+                        onClick={item.action}
+                        isActive={activeTab === item.title.replace(' ', '-').toLowerCase()}
+                        tooltip={item.title}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </SidebarGroup>
+            
+            <SidebarGroup>
               <SidebarGroupLabel>Alerts</SidebarGroupLabel>
               <SidebarGroupContent>
                 <div className="space-y-2 px-2">
@@ -459,6 +488,9 @@ const AdminDashboard = () => {
                   <TabsTrigger value="complaints" className="rounded-lg">Complaints</TabsTrigger>
                   <TabsTrigger value="payments" className="rounded-lg">Payments</TabsTrigger>
                   <TabsTrigger value="reports" className="rounded-lg">Reports</TabsTrigger>
+                  <TabsTrigger value="add-driver" className="rounded-lg">Add Driver</TabsTrigger>
+                  <TabsTrigger value="add-bus" className="rounded-lg">Add Bus</TabsTrigger>
+                  <TabsTrigger value="add-route" className="rounded-lg">Add Route</TabsTrigger>
                 </TabsList>
                 
                 {/* Overview Tab Content */}
@@ -1637,6 +1669,21 @@ const AdminDashboard = () => {
                       </table>
                     </div>
                   </div>
+                </TabsContent>
+                
+                {/* Add Driver Tab Content */}
+                <TabsContent value="add-driver" className="mt-0">
+                  <AddDriverForm />
+                </TabsContent>
+                
+                {/* Add Bus Tab Content */}
+                <TabsContent value="add-bus" className="mt-0">
+                  <AddBusForm />
+                </TabsContent>
+                
+                {/* Add Route Tab Content */}
+                <TabsContent value="add-route" className="mt-0">
+                  <AddRouteForm />
                 </TabsContent>
               </Tabs>
             </div>
