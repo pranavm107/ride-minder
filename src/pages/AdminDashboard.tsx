@@ -52,7 +52,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
 const AdminDashboard = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'buses' | 'drivers' | 'students' | 'routes' | 'complaints' | 'payments' | 'reports' | 'add-driver' | 'add-bus' | 'add-route'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'buses' | 'drivers' | 'students' | 'routes' | 'complaints' | 'payments' | 'reports' | 'cameras' | 'add-driver' | 'add-bus' | 'add-route'>('overview');
   const [selectedView, setSelectedView] = useState<'data' | 'map'>('map');
   
   const busFleet = [
@@ -215,6 +215,7 @@ const AdminDashboard = () => {
     { title: 'Drivers', icon: User, action: () => setActiveTab('drivers') },
     { title: 'Students', icon: Users, action: () => setActiveTab('students') },
     { title: 'Routes', icon: MapPin, action: () => setActiveTab('routes') },
+    { title: 'Cameras', icon: Camera, action: () => setActiveTab('cameras') },
     { title: 'Complaints', icon: MessageSquare, action: () => setActiveTab('complaints') },
     { title: 'Payments', icon: DollarSign, action: () => setActiveTab('payments') },
     { title: 'Reports', icon: FileText, action: () => setActiveTab('reports') },
@@ -1684,6 +1685,87 @@ const AdminDashboard = () => {
                 {/* Add Route Tab Content */}
                 <TabsContent value="add-route" className="mt-0">
                   <AddRouteForm />
+                </TabsContent>
+                
+                {/* Camera Tab Content */}
+                <TabsContent value="cameras" className="mt-0">
+                  <div className="bg-white rounded-lg shadow-sm p-6">
+                    <div className="flex items-center justify-between mb-6">
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">Camera Control Center</h3>
+                        <p className="text-gray-600 mt-1">Monitor cab cameras with intelligent access control</p>
+                      </div>
+                      <Button 
+                        onClick={() => window.open('/camera-control', '_blank')}
+                        className="flex items-center gap-2"
+                      >
+                        <Camera className="h-4 w-4" />
+                        Open Full Camera View
+                      </Button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {liveCabBookings.map((cab) => (
+                        <div key={cab.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
+                          <div className="flex items-center justify-between mb-3">
+                            <h4 className="font-medium text-gray-900">{cab.cabNumber}</h4>
+                            <Badge variant={cab.status === 'active' ? 'default' : 'secondary'}>
+                              {cab.status}
+                            </Badge>
+                          </div>
+                          
+                          <div className="relative aspect-video bg-gray-900 rounded-lg overflow-hidden mb-3">
+                            <div className="absolute inset-0 bg-gray-800 flex items-center justify-center">
+                              <div className="text-center text-gray-400">
+                                <Lock className="h-8 w-8 mx-auto mb-2" />
+                                <div className="text-sm font-medium">Camera Locked</div>
+                                <div className="text-xs opacity-75 mt-1">Password required</div>
+                              </div>
+                            </div>
+                            <div className="absolute inset-0 backdrop-blur-sm bg-black/30"></div>
+                          </div>
+                          
+                          <div className="space-y-2 text-sm text-gray-600">
+                            <div>Route: {cab.routeName}</div>
+                            <div>Seats: {cab.assignedSeats + cab.guestSeats}/{cab.totalSeats}</div>
+                            <div>Last Update: {cab.lastUpdate}</div>
+                          </div>
+                          
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full mt-3"
+                            onClick={() => window.open('/camera-control', '_blank')}
+                          >
+                            <Camera className="h-4 w-4 mr-2" />
+                            Access Camera
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+                      <h4 className="font-medium text-blue-900 mb-2">Camera Access Information</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-blue-800">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-gray-400 rounded-full"></div>
+                          <span>🔒 Locked - Password required</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                          <span>🚨 SOS - Auto enabled</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-amber-500 rounded-full"></div>
+                          <span>⚠️ Idle - Camera activated</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                          <span>🔓 Unlocked - Manual access</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
                 </TabsContent>
               </Tabs>
             </div>
