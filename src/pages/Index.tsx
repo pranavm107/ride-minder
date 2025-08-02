@@ -1,11 +1,21 @@
 
 import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
 import NavBar from '@/components/NavBar';
 import Hero from '@/components/Hero';
 import UserTypeSelector from '@/components/UserTypeSelector';
-import { Bus, Clock, MapPin, User } from 'lucide-react';
+import { Bus, Clock, MapPin, User, LogIn } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const Index = () => {
+  const { user } = useAuth();
+
+  // Redirect authenticated users to their dashboard
+  if (user) {
+    return <Navigate to="/auth" replace />;
+  }
+
   const features = [
     {
       icon: <MapPin className="h-6 w-6 text-brand-500" />,
@@ -132,18 +142,20 @@ const Index = () => {
               Join hundreds of schools improving their transportation systems with RideMinder.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a 
-                href="#" 
+              <Button 
+                onClick={() => window.location.href = '/auth'}
                 className="px-8 py-3 rounded-full bg-white text-brand-600 font-medium hover:bg-gray-100 transition-colors shadow-md"
               >
-                Request Demo
-              </a>
-              <a 
-                href="#" 
+                <LogIn className="mr-2 h-4 w-4" />
+                Get Started
+              </Button>
+              <Button 
+                variant="outline"
+                onClick={() => window.location.href = '/auth'}
                 className="px-8 py-3 rounded-full bg-transparent border border-white text-white font-medium hover:bg-white/10 transition-colors"
               >
-                Learn More
-              </a>
+                Login
+              </Button>
             </div>
           </div>
         </section>
