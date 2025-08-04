@@ -4,8 +4,6 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
-import { AuthProvider } from "@/contexts/AuthProvider";
-import AuthPage from "./pages/AuthPage";
 import Index from "./pages/Index";
 import StudentDashboard from "./pages/StudentDashboard";
 import DriverDashboard from "./pages/DriverDashboard";
@@ -15,6 +13,13 @@ import NotFound from "./pages/NotFound";
 import RouteStopsPage from "./pages/RouteStopsPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
+import StudentLogin from "./pages/login/StudentLogin";
+import DriverLogin from "./pages/login/DriverLogin";
+import AdminLogin from "./pages/login/AdminLogin";
+import ForgotPassword from "./pages/login/ForgotPassword";
+import LoginSelector from "./pages/login/LoginSelector";
+import ParentLogin from "./pages/login/ParentLogin";
+import GuestLogin from "./pages/guest/GuestLogin";
 import GuestDashboard from "./pages/guest/GuestDashboard";
 import ParentDashboard from "./pages/ParentDashboard";
 import TripHistoryPage from "./pages/TripHistoryPage";
@@ -43,14 +48,22 @@ const AnimatedRoutes = () => {
         <Route path="/" element={<Index />} />
         
         {/* Authentication Routes */}
-        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/login" element={<LoginSelector />} />
+        <Route path="/login/student" element={<StudentLogin />} />
+        <Route path="/login/driver" element={<DriverLogin />} />
+        <Route path="/login/admin" element={<AdminLogin />} />
+        <Route path="/login/parent" element={<ParentLogin />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        
+        {/* Guest Routes */}
+        <Route path="/guest/login" element={<GuestLogin />} />
+        <Route path="/guest/dashboard" element={<GuestDashboard />} />
         
         {/* Dashboard Routes */}
-        <Route path="/student/dashboard" element={<StudentDashboard />} />
-        <Route path="/driver/dashboard" element={<DriverDashboard />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/parent/dashboard" element={<ParentDashboard />} />
-        <Route path="/guest/dashboard" element={<GuestDashboard />} />
+        <Route path="/student" element={<StudentDashboard />} />
+        <Route path="/driver" element={<DriverDashboard />} />
+        <Route path="/admin" element={<AdminDashboard />} />
+        <Route path="/parent" element={<ParentDashboard />} />
         <Route path="/receipt" element={<ReceiptPage />} />
         <Route path="/route-stops" element={<RouteStopsPage />} />
         <Route path="/reports" element={<ReportsPage />} />
@@ -82,15 +95,13 @@ const AnimatedRoutes = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <BrowserRouter>
-        <TooltipProvider>
-          <AnimatedRoutes />
-          <Toaster />
-          <Sonner />
-        </TooltipProvider>
-      </BrowserRouter>
-    </AuthProvider>
+    <BrowserRouter>
+      <TooltipProvider>
+        <AnimatedRoutes />
+        <Toaster />
+        <Sonner />
+      </TooltipProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 
