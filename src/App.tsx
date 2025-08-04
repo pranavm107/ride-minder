@@ -33,8 +33,6 @@ import DriverDocumentsPage from "./pages/DriverDocumentsPage";
 import StudentCommunityPage from "./pages/StudentCommunityPage";
 import AvailableRidesPage from "./pages/AvailableRidesPage";
 import LocationManagement from "./pages/LocationManagement";
-import NavRedirector from "./components/NavRedirector";
-
 const queryClient = new QueryClient();
 
 // Animation wrapper component
@@ -43,7 +41,6 @@ const AnimatedRoutes = () => {
   
   return (
     <AnimatePresence mode="wait">
-      <NavRedirector />
       <Routes location={location} key={location.pathname}>
         <Route path="/" element={<Index />} />
         
